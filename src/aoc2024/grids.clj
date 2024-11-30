@@ -48,8 +48,8 @@
   ([g row col x] (assoc-in g [row col] x)))
 
 (defn neighbors4
-  ([ij] (mapv #(% ij) DIRS4))
-  ([g ij] (into [] (comp (map #(% ij))
+  ([ij] (mapv #(move % 1 ij) DIRS4))
+  ([g ij] (into [] (comp (map #(move % 1 ij))
                          (filter #(in-grid? g %)))
                 DIRS4))
   ([g row col] (neighbors4 g [row col])))
