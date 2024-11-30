@@ -7,7 +7,7 @@
 
 `lein run` to run all days, printing results and timing information.
 
-Inputs are expected in the `inputs/` directory.
+Inputs are expected in the `inputs/` directory as *.inp files.
 
 ## License
 
