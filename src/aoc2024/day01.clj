@@ -4,7 +4,7 @@
 (defn part-1 [lines]
   (->> lines
        (map #(mapv parse-long (str/split % #" +")))
-       (apply map (comp sort vector)) ; transpose to get lists, thens sort
+       (apply map (comp sort vector)) ; transpose to get lists, then sort
        (apply map (comp abs -))       ; un-transpose and find the abs diff between each element
        (reduce +)))                   ; sum
 
@@ -30,7 +30,7 @@
   (def lines (str/split test-inp #"\n"))
   
   (def spt (map #(map parse-long (str/split % #" +")) lines))
-  (apply map vector spt)
+  (apply map vector spt) ; ([3 4 2 1 3 3] [4 3 5 3 9 3])
 
   (part-1 lines) ; 11
 
