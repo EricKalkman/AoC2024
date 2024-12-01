@@ -2,6 +2,7 @@
   (:gen-class)
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
+            [aoc2024.day01 :as day01]
             ))
 
 (defn do-file-lines [fname f]
@@ -30,5 +31,5 @@
       nil)))
 
 (defn -main [& _]
-  ;(some->> (line-thunks 1 day01/part-1 day01/part-2) (apply do-part 1))
+  (some->> (line-thunks 1 day01/part-1 day01/part-2) (apply do-part 1))
   )
