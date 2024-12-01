@@ -5,9 +5,13 @@
 
 ## Usage
 
-`lein run` to run all days, printing results and timing information.
+`lein run` to run all days using the Clojure code, printing results and timing information.
 
 Inputs are expected in the `inputs/` directory as *.inp files.
+
+To run scheme code with Chez Scheme, `cd` to the `chez` directory and run
+
+    $ chez --libdirs . --script runner.scm
 
 ## License
 
