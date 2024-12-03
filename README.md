@@ -9,9 +9,7 @@
 
 Inputs are expected in the `inputs/` directory as *.inp files.
 
-To run scheme code with Chez Scheme, `cd` to the `chez` directory and run
-
-    $ chez --libdirs . --script runner.scm
+To run scheme code with Chez Scheme, `cd` to the `chez` directory and run `run.sh`
 
 ## License
 
