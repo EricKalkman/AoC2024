@@ -4,6 +4,7 @@
             [clojure.string :as str]
             [aoc2024.day01 :as day01]
             [aoc2024.day02 :as day02]
+            [aoc2024.day03 :as day03]
             ))
 
 (defn do-file-lines [fname f]
@@ -34,4 +35,5 @@
 (defn -main [& _]
   (some->> (line-thunks 1 day01/part-1 day01/part-2) (apply do-part 1))
   (some->> (line-thunks 2 day02/part-1 day02/part-2) (apply do-part 2))
+  (some->> (str-thunks 3 day03/part-1 day03/part-2) (apply do-part 3))
   )
