@@ -9,6 +9,7 @@
                  argmin
                  time-exec
                  file->lines
+                 file->string
                  string->lines
                  acons
                  map*
@@ -154,6 +155,12 @@
              (if (eof-object? line)
                (reverse acc)
                (loop (get-line p) (cons line acc)))))))))
+
+  (define file->string
+    (case-lambda
+      ([fname] (file->string fname identity))
+      ([fname mapper]
+       (call-with-input-file fname get-string-all))))
 
   (define string->lines
     (case-lambda

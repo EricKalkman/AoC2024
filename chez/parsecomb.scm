@@ -15,8 +15,13 @@
                  parse-result-val parse-result-rest parse-result-err?
                  success failure success? failure?
 
-                 char str charp charp+ charset charset+
+                 eof
+
+                 any-char char str charp charp+ charset charset+
                  choice seq maybe skip
+                 repeat-before
+                 skip-until
+                 skip-before
                  pmap
                  many many+
 
@@ -80,6 +85,16 @@
 
   (define (failure? pr) (parse-result-err? pr))
   (define (success? pr) (not (failure? pr)))
+
+  (define (eof buf)
+    (if (string-buffer-eof? buf)
+      (success #f buf)
+      (failure 'not-eof 'eof buf)))
+
+  (define (any-char buf)
+    (if (string-buffer-eof? buf)
+      (failure 'eof #f buf)
+      (success (string-buffer-ref buf 0) (string-buffer-advance 1 buf))))
 
   (define (char c)
     (λ (buf)
@@ -145,6 +160,38 @@
                      (parse-result-rest res)
                      (cons (parse-result-val res) acc))
                res))))))
+
+  (define (repeat-before pred p)
+    (λ (buf)
+       (let loop ([tmpbuf buf]
+                  [acc '()])
+         (if (success? (pred tmpbuf))
+           (success (reverse acc) tmpbuf)
+           (let ([res (p tmpbuf)])
+             (if (success? res)
+               (loop (parse-result-rest res) (cons (parse-result-val res) acc))
+               res))))))
+
+  (define (skip-before pred p)
+    (λ (buf)
+       (let loop ([tmpbuf buf])
+         (if (success? (pred tmpbuf))
+           (success #f tmpbuf)
+           (if-let ([res (p tmpbuf)]
+                    [_ (success? res)])
+             (loop (parse-result-rest res))
+             res)))))
+
+  (define (skip-until pred p)
+    (λ (buf)
+       (let loop ([tmpbuf buf])
+         (if-let ([res (pred tmpbuf)]
+                  [_ (success? res)])
+           res
+           (if-let ([res (p tmpbuf)]
+                    [_ (success? res)])
+             (loop (parse-result-rest res))
+             res)))))
 
   (define (maybe p)
     (λ (buf)
