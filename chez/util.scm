@@ -11,6 +11,7 @@
                  file->lines
                  string->lines
                  acons
+                 map*
                  )
          (import (rnrs)
                  (rnrs r5rs)
@@ -166,5 +167,14 @@
                 (loop (get-line p) (cons line acc)))))))))
 
   (define (acons k v lst) (cons (cons k v) lst))
+
+  (define (map* f . lsts)
+    (let loop ([lsts lsts]
+               [res '()])
+      (if (exists null? lsts)
+        (reverse res)
+        (loop (map cdr lsts)
+              (cons (apply f (map car lsts))
+                    res)))))
 
 )
