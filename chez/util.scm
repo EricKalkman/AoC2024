@@ -12,6 +12,7 @@
                  string->lines
                  acons
                  map*
+                 count
                  )
          (import (rnrs)
                  (rnrs r5rs)
@@ -176,5 +177,13 @@
         (loop (map cdr lsts)
               (cons (apply f (map car lsts))
                     res)))))
+
+  (define (count p lst)
+    (let loop ([lst lst]
+               [n 0])
+      (cond
+        [(null? lst) n]
+        [(p (car lst)) (loop (cdr lst) (+ n 1))]
+        [else (loop (cdr lst) n)])))
 
 )

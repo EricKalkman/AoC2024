@@ -41,11 +41,11 @@
     (let-values ([(safe-0 unsafe) (->> lines
                                        (map parse-line)
                                        (partition report-safe?))])
-      (let ([safe-1 (->> unsafe
-                         (filter (λ (report)
-                                    (exists (λ (n) (report-safe? (skip-nth n report)))
-                                            (range (length report))))))])
-        (+ (length safe-0) (length safe-1)))))
+      (let ([n-safe-1 (->> unsafe
+                           (count (λ (report)
+                                     (exists (λ (n) (report-safe? (skip-nth n report)))
+                                             (range (length report))))))])
+        (+ (length safe-0) n-safe-1))))
 )
 
 #|
