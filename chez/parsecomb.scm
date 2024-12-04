@@ -251,7 +251,11 @@
 
   (define (list-of elem sep)
     (->> (seq elem (many+ (seq (skip sep) elem)))
-         (pmap (λ (lst) (cons (car lst) (map car (cadr lst)))))))
+         (pmap (λ (lst)
+                  (cond
+                    [(and (null? (cdr lst)) (null? (car lst))) (car lst)] ; return '() if all elem returned #f
+                    [(null? (cdr lst)) (map car (car lst))]               ; don't cons first elem if #f
+                    [else (cons (car lst) (map car (cadr lst)))])))))
 
   (define-syntax rec
     (syntax-rules ()

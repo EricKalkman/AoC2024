@@ -25,7 +25,7 @@
   (define parse-dont (p:skip (p:seq (p:str "don't()") (p:skip-before (p:choice p:eof (p:str "do()")) p:any-char))))
 
   (define parse-part-2 (->> (p:many+ (p:choice parse-dont parse-do))
-                            (p:pmap (λ (lst) (->> lst (filter identity) (apply append))))))
+                            (p:pmap (λ (lst) (apply append lst)))))
 
   (define (part-2 s)
     (->> (string-append "do()" s)
