@@ -1,5 +1,5 @@
 (library (day03)
-         (export parse-mul parse-muls part-1 part-2 part-2-clj)
+         (export part-1 part-2 part-2-clj)
          (import (rnrs)
                  (util)
                  (prefix (parsecomb) p:))
