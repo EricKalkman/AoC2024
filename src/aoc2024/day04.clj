@@ -8,6 +8,7 @@
   [dirs word grid cur-pos]
   (->> (range (count word))
        (map (comp #(g/grid-get grid %)
+                  ; move once in all supplied directions
                   #(reduce (fn [pos dir] (g/move dir % pos)) cur-pos dirs)))
        (= (seq word))))
 
