@@ -7,8 +7,8 @@
    the encountered letters constitute the string word"
   [dirs word grid cur-pos]
   (->> (range (count word))
-       (map #(reduce (fn [pos dir] (g/move dir % pos)) cur-pos dirs))
-       (map #(g/grid-get grid %))
+       (map (comp #(g/grid-get grid %)
+                  #(reduce (fn [pos dir] (g/move dir % pos)) cur-pos dirs)))
        (= (seq word))))
 
 (def DIAGONAL-CHECKERS
@@ -19,7 +19,8 @@
 (defn part [word checkers lines]
   (let [grid (g/parse-grid lines)]
     (->> (g/coords grid)
-         (map #(->> (filter (fn [checker] (checker word grid %)) checkers)
+         (map #(->> checkers
+                    (filter (fn [checker] (checker word grid %)))
                     count))
          (reduce +))))
 
