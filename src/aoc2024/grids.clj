@@ -7,6 +7,8 @@
   vec)
 
 (defn grid-get
+  "(grid-get g [r c]) gets the value stored in the r'th row and c'th column of grid g
+  (grid-get g r c) is similar"
   ([g idxs] (get-in g idxs))
   ([g row col] (get-in g [row col])))
 
@@ -15,12 +17,16 @@
   [:up :right :down :left])
 
 (def flip-dir
+  "Inverts the supplied direction"
   {:up :down
    :right :left
    :down :up
    :left :right})
 
-(defn move [dir n [row col]]
+(defn move
+  "(move dir n [row col]) creates a new point [r' c'] where r' and c' are the coordinates
+  of moving n steps in direction dir (see DIRS4)"
+  [dir n [row col]]
   (case dir
     :up [(- row n) col]
     :down [(+ row n) col]
@@ -30,7 +36,9 @@
 (defn width [grid] (count (first grid)))
 (defn height [grid] (count grid))
 
-(defn coords [grid]
+(defn coords
+  "Returns a lazy sequence of all indexable coordinates in grid"
+  [grid]
   (for [row (range (height grid))
         col (range (width grid))]
     [row col]))
@@ -41,15 +49,19 @@
   ([g row col] (in-grid? g [row col])))
 
 (defn grid-update
+  "Mutates grid g at coordinates ij with function f and returns a new grid"
   [g ij f & args] (apply update-in g ij f args))
 
 (defn grid-set
+  "Sets coordinate ij in grid g to x"
   ([g ij x] (assoc-in g ij x))
   ([g row col x] (assoc-in g [row col] x)))
 
 (defn neighbors4
+  "Returns neighbors above, below, to the left of, and to the right of coord ij.
+  If g is supplied, only returns coordinates that are within g."
   ([ij] (mapv #(move % 1 ij) DIRS4))
-  ([g ij] (into [] (comp (map #(move % 1 ij))
+  ([ij g] (into [] (comp (map #(move % 1 ij))
                          (filter #(in-grid? g %)))
                 DIRS4))
   ([g row col] (neighbors4 g [row col])))
