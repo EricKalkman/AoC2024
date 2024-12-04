@@ -38,14 +38,11 @@
       [else (cons (car lst) (skip-nth (- n 1) (cdr lst)))]))
 
   (define (part-2 lines)
-    (let-values ([(safe-0 unsafe) (->> lines
-                                       (map parse-line)
-                                       (partition report-safe?))])
-      (let ([n-safe-1 (->> unsafe
-                           (count (λ (report)
-                                     (exists (λ (n) (report-safe? (skip-nth n report)))
-                                             (range (length report))))))])
-        (+ (length safe-0) n-safe-1))))
+    (->> lines
+         (map parse-line)
+         (count (λ (report)
+                   (exists (λ (n) (report-safe? (skip-nth n report)))
+                           (range (length report)))))))
 )
 
 #|

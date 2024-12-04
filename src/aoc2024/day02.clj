@@ -19,12 +19,11 @@
     (concat a (rest b))))
 
 (defn part-2 [lines]
-  (let [{safe-0 true unsafe false} (group-by (partial report-safe? 1 3)
-                                             (map parse-report lines))
-        safe-1 (->> unsafe
-                    (filter #(some (fn [idx] (report-safe? 1 3 (skip-nth idx %)))
-                                   (range (count %)))))]
-    (+ (count safe-0) (count safe-1))))
+  (->> lines
+       (map parse-report)
+       (filter #(some (fn [idx] (report-safe? 1 3 (skip-nth idx %)))
+                      (range (count %))))
+       count))
 
 (comment
   (def test-inp "7 6 4 2 1
