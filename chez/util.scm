@@ -12,7 +12,7 @@
                  file->string
                  string->lines
                  acons
-                 map*
+                 map* filter-map
                  count
                  )
          (import (rnrs)
@@ -184,6 +184,13 @@
         (loop (map cdr lsts)
               (cons (apply f (map car lsts))
                     res)))))
+
+  (define (filter-map f lst)
+    (if (null? lst)
+      lst
+      (if-let ([x (f (car lst))])
+        (cons x (filter-map f (cdr lst)))
+        (filter-map f (cdr lst)))))
 
   (define (count p lst)
     (let loop ([lst lst]

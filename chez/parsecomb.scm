@@ -148,17 +148,20 @@
              (loop (cdr ps)))))))
 
   (define (seq . ps)
+    ; note: removes results of parsers that are #f
     (λ (buf)
        (let loop ([ps ps]
                   [buf buf]
                   [acc '()])
          (if (null? ps)
-           (success (filter identity (reverse acc)) buf)
+           (success (reverse acc) buf)
            (let ([res ((car ps) buf)])
              (if (success? res)
-               (loop (cdr ps)
-                     (parse-result-rest res)
-                     (cons (parse-result-val res) acc))
+               (if (parse-result-val res)
+                 (loop (cdr ps)
+                       (parse-result-rest res)
+                       (cons (parse-result-val res) acc))
+                 (loop (cdr ps) (parse-result-rest res) acc))
                res))))))
 
   (define (repeat-before pred p)
@@ -215,18 +218,25 @@
          res)))
 
   (define (many p)
+    ; note: does not accumulate parse results that are #f
     (λ (buf)
        (let loop ([acc '()]
                   [buf buf])
          (let ([res (p buf)])
            (if (success? res)
-             (loop (cons (parse-result-val res) acc)
-                   (parse-result-rest res))
+             (if (parse-result-val res)
+               (loop (cons (parse-result-val res) acc)
+                     (parse-result-rest res))
+               (loop acc (parse-result-rest res)))
              (success (reverse acc) buf))))))
 
   (define (many+ p)
+    ; note: does not accumulate parse results that are #f
     (->> (seq p (many p))
-         (pmap (λ (res) (cons (car res) (cadr res))))))
+         (pmap (λ (res)
+                  (if (null? (cdr res)) ; if first p returned #f
+                    (car res)
+                    (cons (car res) (cadr res)))))))
 
   (define parse-int
     (->> (seq (maybe (char #\-)) (charset+ "0123456789"))
