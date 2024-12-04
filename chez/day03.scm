@@ -24,15 +24,14 @@
 
   (define parse-dont (p:skip (p:seq (p:str "don't()") (p:skip-before (p:choice p:eof (p:str "do()")) p:any-char))))
 
-  (define parse-part-2 (p:many+ (p:choice parse-dont parse-do)))
+  (define parse-part-2 (->> (p:many+ (p:choice parse-dont parse-do))
+                            (p:pmap (λ (lst) (->> lst (filter identity) (apply append))))))
 
   (define (part-2 s)
     (->> (string-append "do()" s)
          (p:make-string-buffer)
          (parse-part-2)
          (p:parse-result-val)
-         (filter identity)  ; remove empty (don't()) slots
-         (apply append)     ; combine the lists of mul's from each do() ... don't() run
          (map (λ (p) (apply * p)))
          (apply +)))
 
