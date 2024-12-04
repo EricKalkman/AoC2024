@@ -31,8 +31,8 @@
          (p:make-string-buffer)
          (parse-part-2)
          (p:parse-result-val)
-         (filter identity)
-         (apply append)
+         (filter identity)  ; remove empty (don't()) slots
+         (apply append)     ; combine the lists of mul's from each do() ... don't() run
          (map (λ (p) (apply * p)))
          (apply +)))
 
