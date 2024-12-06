@@ -15,10 +15,12 @@
                  map* filter-map
                  count
                  assv-get
+                 vector-count
                  )
          (import (rnrs)
                  (rnrs r5rs)
-                 (only (chezscheme) current-time time-second time-nanosecond time-difference))
+                 (only (chezscheme) current-time time-second time-nanosecond time-difference)
+                 )
 
   (define-syntax λ
     (syntax-rules ()
@@ -68,8 +70,9 @@
       [(_ x) x]
       [(_ x (fn args ...) fns ...)
        (begin
-         (fn x args ...)
-         (mut-> x fns ...))]))
+         (let ([x* x])
+           (fn x* args ...)
+           (mut-> x* fns ...)))]))
 
   (define-syntax if-let
     (syntax-rules ()
@@ -204,4 +207,13 @@
   (define (assv-get k lst)
     (and->> (assv k lst)
             (cdr)))
+
+  (define (vector-count p v)
+    (define len (vector-length v))
+    (let loop ([idx 0]
+               [res 0])
+      (cond
+        [(>= idx len) res]
+        [(p (vector-ref v idx)) (loop (+ idx 1) (+ res 1))]
+        [else (loop (+ idx 1) res)])))
 )

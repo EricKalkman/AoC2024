@@ -29,7 +29,7 @@
                                (not= \# (g/grid-get grid %))))
              first)]
     (and (g/in-grid? grid next-coord)
-      [(g/move dir -1 next-coord) (g/turn-right dir)])))
+         [(g/move dir -1 next-coord) (g/turn-right dir)])))
 
 (defn in-cycle? [grid start]
   (loop [node [start :up]
