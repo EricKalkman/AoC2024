@@ -28,9 +28,8 @@
              (drop-while #(and (g/in-grid? grid %)
                                (not= \# (g/grid-get grid %))))
              first)]
-    (if (g/in-grid? grid next-coord)
-      [(g/move dir -1 next-coord) (g/turn-right dir)]
-      nil)))
+    (and (g/in-grid? grid next-coord)
+      [(g/move dir -1 next-coord) (g/turn-right dir)])))
 
 (defn in-cycle? [grid start]
   (loop [node [start :up]
@@ -65,17 +64,9 @@
 
   (def lines (str/split-lines test-inp))
 
-  (def g1 (g/parse-grid (map #(into [] %) (str/split-lines test-inp))))
-  (def start [6 4])
-  (def g* (g/grid-set g1 start \.))
-
-  (neighbor g* [start :up])
-
   (part-1 lines) ; 41
   (part-1 (str/split-lines (slurp "inputs/day06.inp"))) ; 4696
 
-  (in-cycle? g* start)
-
   (part-2 lines) ; 6
-  (time (part-2 (str/split-lines (slurp "inputs/day06.inp"))))
+  (time (part-2 (str/split-lines (slurp "inputs/day06.inp")))) ; 1443
   )
