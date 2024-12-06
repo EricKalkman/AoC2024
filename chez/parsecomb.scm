@@ -11,7 +11,7 @@
                  string-buffer-advance
                  string-buffer-has-input?
                  string-buffer-ref string-buffer-substring
-                 parse-result make-parse-result parse-result?
+                 parse-result make-parse-result parse-result? parse-result-unwrap
                  parse-result-val parse-result-rest parse-result-err?
                  success failure success? failure?
 
@@ -30,6 +30,7 @@
                  WHITESPACE ws skip-ws
 
                  list-of
+                 label
 
                  rec
                  )
@@ -48,6 +49,11 @@
       (immutable val)
       (immutable rest)
       (immutable err?)))
+
+  (define (parse-result-unwrap res)
+    (when (parse-result-err? res)
+      (error 'parse-result-unwrap "Tried to unwrap failed parse result"))
+    (parse-result-val res))
 
   (define (make-string-buffer s) (%make-string-buffer s 0))
   (define (string-buffer-length buf) (string-length (string-buffer-str buf)))
@@ -256,6 +262,9 @@
                     [(and (null? (cdr lst)) (null? (car lst))) (car lst)] ; return '() if all elem returned #f
                     [(null? (cdr lst)) (map car (car lst))]               ; don't cons first elem if #f
                     [else (cons (car lst) (map car (cadr lst)))])))))
+
+  (define (label keys p)
+    (pmap (λ (vals) (map cons keys vals)) p))
 
   (define-syntax rec
     (syntax-rules ()

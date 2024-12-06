@@ -16,10 +16,6 @@
          (apply map (compose abs -))
          (fold-left + 0)))
 
-  (define (assv-get x lst) ; assv returns the cons cell; assv-get cdr's the cell
-    (and->> (assv x lst)
-            (cdr)))
-
   (define (part-2 lines)
     (let ([lsts (->> lines
                      (map parse-line)

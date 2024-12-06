@@ -2,7 +2,8 @@
         (util)
         (prefix (day01) day01:)
         (prefix (day02) day02:)
-        (prefix (day03) day03:))
+        (prefix (day03) day03:)
+        (prefix (day05) day05:))
 
 (define (do-part day p1 p2)
   (format #t "DAY ~a~%" day)
@@ -21,3 +22,4 @@
 (and->> (line-thunks 1 day01:part-1 day01:part-2) (apply do-part 1))
 (and->> (line-thunks 2 day02:part-1 day02:part-2) (apply do-part 2))
 (and->> (str-thunks 3 day03:part-1 day03:part-2) (apply do-part 3))
+(and->> (str-thunks 5 day05:part-1 day05:part-2) (apply do-part 5))

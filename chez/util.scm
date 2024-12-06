@@ -14,6 +14,7 @@
                  acons
                  map* filter-map
                  count
+                 assv-get
                  )
          (import (rnrs)
                  (rnrs r5rs)
@@ -200,4 +201,7 @@
         [(p (car lst)) (loop (cdr lst) (+ n 1))]
         [else (loop (cdr lst) n)])))
 
+  (define (assv-get k lst)
+    (and->> (assv k lst)
+            (cdr)))
 )
