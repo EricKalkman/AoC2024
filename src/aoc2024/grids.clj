@@ -23,6 +23,18 @@
    :down :up
    :left :right})
 
+(def turn-right
+  {:up :right
+   :right :down
+   :down :left
+   :left :up})
+
+(def turn-left
+  {:up :left
+   :left :down
+   :down :right
+   :right :up})
+
 (defn move
   "(move dir n [row col]) creates a new point [r' c'] where r' and c' are the coordinates
   of moving n steps in direction dir (see DIRS4)"
@@ -42,6 +54,9 @@
   (for [row (range (height grid))
         col (range (width grid))]
     [row col]))
+
+(defn rows [grid] (range (height grid)))
+(defn columns [grid] (range (width grid)))
 
 (defn in-grid?
   ([g [row col]] (and (<= 0 row (dec (height g)))
