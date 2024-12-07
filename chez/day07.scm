@@ -18,7 +18,9 @@
 (define (inverse op target x)
   (case op
     [(+) (- target x)]
-    [(*) (/ target x)]
+    [(*)
+     (let-values ([(d r) (div-and-mod target x)])
+       (and (zero? r) d))]
     [(cat) (deconcat target x)]))
 
 (define (determine-ops target terms ops)

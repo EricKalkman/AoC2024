@@ -31,7 +31,9 @@
   [op target x]
   (case op
     :+ (- target x)
-    :* (/ target x)
+    :* (let [d (quot target x)
+             r (mod target x)]
+         (if (zero? r) d nil))
     :|| (deconcat target x)))
 
 (defn determine-ops
