@@ -27,7 +27,7 @@
 
                  parse-int
 
-                 WHITESPACE ws skip-ws
+                 WHITESPACE ws skip-ws nl skip-nl
 
                  list-of
                  label
@@ -254,6 +254,8 @@
   
   (define ws (charset+ WHITESPACE))
   (define skip-ws (skip ws))
+  (define nl (char #\newline))
+  (define skip-nl (skip nl))
 
   (define (list-of elem sep)
     (->> (seq elem (many+ (seq (skip sep) elem)))

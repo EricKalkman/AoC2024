@@ -5,6 +5,7 @@
         (prefix (day03) day03:)
         (prefix (day05) day05:)
         (prefix (day06) day06:)
+        (prefix (day07) day07:)
         )
 
 (define (do-part day p1 p2)
@@ -26,3 +27,4 @@
 (and->> (str-thunks 3 day03:part-1 day03:part-2) (apply do-part 3))
 (and->> (str-thunks 5 day05:part-1 day05:part-2) (apply do-part 5))
 (and->> (str-thunks 6 day06:part-1 day06:part-2) (apply do-part 6))
+(and->> (str-thunks 7 day07:part-1 day07:part-2) (apply do-part 7))

@@ -16,6 +16,8 @@
                  count
                  assv-get
                  vector-count
+                 swap-args
+                 rcons
                  )
          (import (rnrs)
                  (rnrs r5rs)
@@ -216,4 +218,9 @@
         [(>= idx len) res]
         [(p (vector-ref v idx)) (loop (+ idx 1) (+ res 1))]
         [else (loop (+ idx 1) res)])))
+
+  (define (swap-args f)
+    (λ (a b) (f b a)))
+
+  (define (rcons a b) (cons b a))
 )
