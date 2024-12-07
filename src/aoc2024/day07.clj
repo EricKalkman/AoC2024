@@ -1,6 +1,6 @@
 (ns aoc2024.day07
   (:require [clojure.string :as str]
-           [aoc2024.parsecomb :as p]))
+            [aoc2024.parsecomb :as p]))
 
 (def parse-operators (->> (p/p-seq p/p-int (p/skip-string ": ")
                                    (p/list-+ p/p-int (p/chr \space) :vectorize? true))
