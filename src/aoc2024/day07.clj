@@ -32,7 +32,7 @@
   combination of ops exists, returns nil"
   [target terms ops]
   (if (== 1 (count terms)) ; if there is only one term left
-    (if (= target (first terms)) ; if that term and the target are equal
+    (if (== target (first terms)) ; if that term and the target are equal
       [[:1 target]]  ; :1 is meant to signify "identity", meaning no op applied
       nil)
     (->> ops
