@@ -1,5 +1,5 @@
 (library (day06)
-         (export neighbor nodes-visited part-1 next-turn in-cycle? part-2)
+         (export part-1 part-2)
          (import (rnrs)
                  (util)
                  (grids))
