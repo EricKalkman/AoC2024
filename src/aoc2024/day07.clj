@@ -18,13 +18,21 @@
       (parse-long (subs st 0 (- (count st) (count sx))))
       nil)))
 
+;(defn inverse
+;  "Returns a function undoes the application of x to target with op, where op is :+, :*, or :||"
+;  [op x]
+;  (case op
+;    :+ (fn [y] (- y x))
+;    :* (fn [y] (/ y x))
+;    :|| (fn [y] (deconcat y x))))
+
 (defn inverse
   "Returns a function undoes the application of x to target with op, where op is :+, :*, or :||"
-  [op x]
+  [op target x]
   (case op
-    :+ (fn [y] (- y x))
-    :* (fn [y] (/ y x))
-    :|| (fn [y] (deconcat y x))))
+    :+ (- target x)
+    :* (/ target x)
+    :|| (deconcat target x)))
 
 (defn determine-ops
   "Determines which operations (choices given in ops) can be used to make the list of numbers
@@ -36,9 +44,8 @@
       [[:1 target]]  ; :1 is meant to signify "identity", meaning no op applied
       nil)
     (->> ops
-         (some #(let [next (peek terms)
-                      inv (inverse % next)]
-                  (some-> (inv target)
+         (some #(let [next (peek terms)]
+                  (some-> (inverse % target next)
                           (determine-ops (pop terms) ops)
                           (conj [% next])))))))
 
