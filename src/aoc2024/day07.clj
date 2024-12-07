@@ -27,7 +27,7 @@
 ;    :|| (fn [y] (deconcat y x))))
 
 (defn inverse
-  "Returns a function undoes the application of x to target with op, where op is :+, :*, or :||"
+  "Undoes the application of x to target with op, where op is :+, :*, or :||"
   [op target x]
   (case op
     :+ (- target x)
