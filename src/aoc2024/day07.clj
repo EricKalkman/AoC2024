@@ -2,10 +2,10 @@
   (:require [clojure.string :as str]
             [aoc2024.parsecomb :as p]))
 
-(def parse-operators (->> (p/p-seq p/p-int (p/skip-string ": ")
+(def parse-numbers (->> (p/p-seq p/p-int (p/skip-string ": ")
                                    (p/list-+ p/p-int (p/chr \space) :vectorize? true))
                           (p/label [:target :terms])))
-(def parse-input (p/list-+ parse-operators p/nl))
+(def parse-input (p/list-+ parse-numbers p/nl))
 
 (defn deconcat
   "Given a target number and a number to apply, calculates the inverse of the concatenation
