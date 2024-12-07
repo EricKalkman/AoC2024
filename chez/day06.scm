@@ -49,6 +49,7 @@
     (define grid (string->grid s))
     (define start (coords-of char=? grid #\^))
     (define visited? (nodes-visited grid start))
+    (hashtable-delete! visited? start)
     (->> visited?
          (hashtable-keys)
          (vector-count

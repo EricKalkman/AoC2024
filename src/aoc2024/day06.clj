@@ -44,7 +44,7 @@
   (let [grid (g/parse-grid (map vec lines))
         start (g/coords-of grid \^)
         visited? (nodes-visited grid start)]
-    (->> visited?
+    (->> (disj visited? start)
          ; hehehe
          (pmap #(in-cycle? (g/grid-set grid % \#) start))
          (filter identity)
