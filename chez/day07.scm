@@ -21,7 +21,6 @@
     [(*) (/ target x)]
     [(cat) (deconcat target x)]))
 
-(define (thread-print x) (display x) (newline) x)
 (define (determine-ops target terms ops)
   (cond
     [(and (null? (cdr terms)) (= (car terms) target)) (list (cons 'I target))]
