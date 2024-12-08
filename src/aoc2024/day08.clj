@@ -13,7 +13,7 @@
   "Calculates all points in grid with integer coordinates on a line from a to b starting from a."
   [grid a b]
   (let [[dr dc] (g/coord- b a)
-        denom (m/gcd (abs dr) (abs dc))
+        denom (if (or (zero? dr) (zero? dc)) (max dr dc) (m/gcd (abs dr) (abs dc)))
         delta [(/ dr denom) (/ dc denom)]]
     (->> a
          (iterate (fn [coord] (g/coord+ coord delta)))
@@ -21,7 +21,7 @@
 
 (defn first-double-dist [a b coords]
   (let [[dr dc] (g/coord- b a)
-        denom (m/gcd (abs dr) (abs dc))]
+        denom (if (or (zero? dr) (zero? dc)) (max dr dc) (m/gcd (abs dr) (abs dc)))]
     (nth coords (* 2 denom) nil)))
 
 (defn combinations
