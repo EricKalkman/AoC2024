@@ -3,7 +3,7 @@
             [clojure.string :as str]
             [clojure.math.numeric-tower :as m]))
 
-(defn collect-antannae [grid]
+(defn collect-antennae [grid]
   (->> (g/coords grid)
        (filter #(not= \. (g/grid-get grid %)))
        (group-by #(g/grid-get grid %))))
@@ -50,7 +50,7 @@
 
 (defn part [which lines]
   (let [grid (g/parse-grid lines)
-        ants (collect-antannae grid)]
+        ants (collect-antennae grid)]
     (->> (vals ants)
          (map #(all-antinodes which grid %))
          (reduce #(into %1 %2) #{})
@@ -89,10 +89,10 @@
   (def g1 (g/parse-grid l1))
   (def g2 (g/parse-grid (str/split-lines test-inp2)))
 
-  (collect-antannae g1) ; {\a [[3 4] [4 8] [5 5]]}
-  (collect-antannae g2) ; {\0 [[1 8] [2 5] [3 7] [4 4]], \A [[5 6] [8 8] [9 9]]}
+  (collect-antennae g1) ; {\a [[3 4] [4 8] [5 5]]}
+  (collect-antennae g2) ; {\0 [[1 8] [2 5] [3 7] [4 4]], \A [[5 6] [8 8] [9 9]]}
 
-  (let [coords (collect-antannae g1)
+  (let [coords (collect-antennae g1)
         as (coords \a)]
     (all-antinodes :first g1 as)) ; #{[7 6] [1 3] [2 0] [6 2]}
 
