@@ -45,6 +45,12 @@
     :left [row (- col n)]
     :right [row (+ col n)]))
 
+(defn coord+ [[r1 c1] [r2 c2]]
+  [(+ r1 r2) (+ c1 c2)])
+
+(defn coord- [[r1 c1] [r2 c2]]
+  [(- r1 r2) (- c1 c2)])
+
 (defn width [grid] (count (first grid)))
 (defn height [grid] (count grid))
 
