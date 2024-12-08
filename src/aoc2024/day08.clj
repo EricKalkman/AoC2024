@@ -1,6 +1,7 @@
 (ns aoc2024.day08
   (:require [aoc2024.grids :as g]
             [clojure.string :as str]
+            [clojure.set :as set]
             [clojure.math.numeric-tower :as m]))
 
 (defn collect-antennae [grid]
@@ -45,15 +46,15 @@
 
 (defn all-antinodes [which grid as]
   (->> (combinations as)
-       (mapcat #(apply antinodes-of which grid %))
-       (into #{})))
+       (map #(apply antinodes-of which grid %))
+       (reduce set/union #{})))
 
 (defn part [which lines]
   (let [grid (g/parse-grid lines)
         ants (collect-antennae grid)]
     (->> (vals ants)
          (map #(all-antinodes which grid %))
-         (reduce #(into %1 %2) #{})
+         (reduce set/union #{})
          count)))
 
 (def part-1 (partial part :first))
