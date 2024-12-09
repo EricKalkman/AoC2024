@@ -63,7 +63,7 @@
          (filter identity)))
 
   (define (all-antinodes antinoder g as)
-    ; note: there are duplicate coordinates here. elided because they are combined
+    ; note: there are duplicate coordinates here. ignored because they are combined
     ; into a set later
     (->> (combinations as)
          (map (λ (p) (antinoder g (car p) (cdr p))))
