@@ -15,6 +15,7 @@
            dir-flip turn-right turn-left
            neighbors4
            grid-neighbors4
+           point+ point-
            )
          (import (rnrs) (util))
 
@@ -143,6 +144,11 @@
   (define (grid-neighbors4 g coord)
     (->> (neighbors4 coord)
          (filter (λ (c) (in-grid? g c)))))
+
+  (define (point+ a b)
+    (cons (+ (car a) (car b)) (+ (cdr a) (cdr b))))
+  (define (point- a b)
+    (cons (- (car a) (car b)) (- (cdr a) (cdr b))))
 )
 
 #|

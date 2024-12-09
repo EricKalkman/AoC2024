@@ -6,7 +6,7 @@
                  string-contains? string-contains-sub?
                  identity
                  compose
-                 argmin
+                 argmin argmax
                  time-exec
                  file->lines
                  file->string
@@ -133,6 +133,18 @@
         (let* ([x (car xs)]
                [kx (keyfn x)])
           (if (< kx km)
+            (loop x kx (cdr xs))
+            (loop m km (cdr xs)))))))
+
+  (define (argmax keyfn . args)
+    (let loop ([m (car args)]
+               [km (keyfn (car args))]
+               [xs args])
+      (if (null? xs)
+        m
+        (let* ([x (car xs)]
+               [kx (keyfn x)])
+          (if (> kx km)
             (loop x kx (cdr xs))
             (loop m km (cdr xs)))))))
 
