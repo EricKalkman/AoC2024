@@ -107,4 +107,7 @@
   (part-2 test-inp) ; 2858
   (part-2-old (slurp "inputs/day09.inp")) ; 6335972980679
   (part-2 (slurp "inputs/day09.inp")) ; 6335972980679
+
+  (part-2 (slurp "inputs/day09_bonus.inp")) ; 97898222299196
+  (part-2 (slurp "inputs/day09_really_evil.inp")) ; 5799706413896802
   )
