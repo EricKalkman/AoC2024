@@ -6,7 +6,7 @@
     (->> xs
          (map #(hash-map :id (/ %1 2) :pos %2 :len %3)
               (range) (reductions + 0 xs))
-         (partition 2 2)
+         (partition 2)
          (apply map vector)
          (zipmap [:files :spaces]))))
 
