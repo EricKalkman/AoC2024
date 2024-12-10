@@ -71,10 +71,7 @@
          spaces (->> spaces
                      (group-by :len)
                      (map (fn [[len spaces]]
-                            [len (into (sorted-set-by
-                                         #(if (= (:pos %1) (:pos %2))
-                                            (compare %1 %2)
-                                            (compare (:pos %1) (:pos %2))))
+                            [len (into (sorted-set-by #(compare (:pos %1) (:pos %2)))
                                        spaces)]))
                      (into {}))
          res []]
