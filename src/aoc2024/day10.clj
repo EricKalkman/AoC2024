@@ -16,7 +16,7 @@
            (filterv #(= (inc cur-height) (g/grid-get grid %)))))))
 
 (defn trail-score [grid neighfunc pos-indexer start]
-  (->> (search/bfs (partial neighfunc grid) start (constantly false))
+  (->> (search/bfs neighfunc start (constantly false))
        :prevs
        keys
        (filter #(= 9 (g/grid-get grid (pos-indexer %))))
@@ -26,22 +26,18 @@
   (let [grid (parse-input lines)]
     (->> (g/coords grid)
          (filter #(zero? (g/grid-get grid %)))
-         (map (partial trail-score grid neighbors identity))
+         (map (partial trail-score grid (partial neighbors grid) identity))
          (reduce +))))
-
-(defn all-neighbors-unique [grid [pos _]]
-  (let [cur-height (g/grid-get grid pos)]
-    (if (= 9 cur-height)
-      []
-      (->> (g/neighbors4 pos grid)
-           (filter #(= (inc cur-height) (g/grid-get grid %)))
-           (mapv #(vector % (gensym)))))))
 
 (defn part-2 [lines]
   (let [grid (parse-input lines)]
     (->> (g/coords grid)
          (filter #(zero? (g/grid-get grid %)))
-         (map (comp (partial trail-score grid all-neighbors-unique first)
+         (map (comp (partial trail-score grid
+                             (comp #(mapv (fn [neigh] [neigh (gensym)]) %)
+                                   (partial neighbors grid)
+                                   first)
+                             first)
                     #(vector % (gensym))))
          (reduce +))))
 
@@ -83,17 +79,10 @@
 01329801
 10456732")
 
-  (def g1 (parse-input (str/split-lines test-inp)))
-  (def g2 (parse-input (str/split-lines test-inp2)))
-  (def g3 (parse-input (str/split-lines test-inp3)))
-  (def g4 (parse-input (str/split-lines test-inp4)))
-  (def g5 (parse-input (str/split-lines test-inp5)))
-
-  (trail-score g1 neighbors identity [0 0]) ; 1
-  (trail-score g2 neighbors identity [0 3]) ; 2
-  (trail-score g3 neighbors identity [0 3]) ; 4
-  (trail-score g4 neighbors identity [0 1]) ; 1
-  (trail-score g4 neighbors identity [6 5]) ; 2
+  (part-1 (str/split-lines test-inp)) ; 1
+  (part-1 (str/split-lines test-inp2)) ; 2
+  (part-1 (str/split-lines test-inp3)) ; 4
+  (part-1 (str/split-lines test-inp4)) ; 3
 
   (part-1 (str/split-lines test-inp5)) ; 36
   (part-1 (str/split-lines (slurp "inputs/day10.inp"))) ; 646
@@ -113,11 +102,8 @@
 765.987
 876....
 987....")
-  (def g6 (parse-input (str/split-lines test-inp6)))
-  (def g7 (parse-input (str/split-lines test-inp7)))
-
-  (trail-score g6 all-neighbors-unique first [[0 5] 0]) ; 3
-  (trail-score g7 all-neighbors-unique first [[0 3] 0]) ; 13
+  (part-2 (str/split-lines test-inp6)) ; 3
+  (part-2 (str/split-lines test-inp7)) ; 13
 
   (part-2 (str/split-lines (slurp "inputs/day10.inp"))) ; 1494
   )
