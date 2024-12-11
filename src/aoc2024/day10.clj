@@ -41,6 +41,37 @@
                     #(vector % (gensym))))
          (reduce +))))
 
+(defn visit-smarter [neighfunc coords]
+  (fn
+    ([] coords)
+    ([_ cur]
+     (let [cur-count (coords cur)]
+       (visit-smarter
+         neighfunc
+         (reduce #(update %1 %2 (fn [c] (+ (or c 0) cur-count)))
+                 coords
+                 (neighfunc cur)))))))
+
+(defn call [f] (f))
+
+(defn trail-rating-smarter [grid start]
+  (let [counts (->> (search/bfs (partial neighbors grid) start (constantly false)
+                                (visit-smarter (partial neighbors grid) {start 1}))
+                    :visit
+                    call)]
+    (->> counts
+         keys
+         (filter #(= 9 (g/grid-get grid %)))
+         (map counts)
+         (reduce +))))
+
+(defn part-2-smarter [lines]
+  (let [grid (parse-input lines)]
+    (->> (g/coords grid)
+         (filter #(zero? (g/grid-get grid %)))
+         (map (partial trail-rating-smarter grid))
+         (reduce +))))
+
 (comment
   (def test-inp "0123
 1234
@@ -105,5 +136,33 @@
   (part-2 (str/split-lines test-inp6)) ; 3
   (part-2 (str/split-lines test-inp7)) ; 13
 
+  (def g6 (parse-input (str/split-lines test-inp6)))
+  (def g7 (parse-input (str/split-lines test-inp7)))
+
+  (trail-rating-smarter g7 [0 3])
+
   (part-2 (str/split-lines (slurp "inputs/day10.inp"))) ; 1494
+  (part-2-smarter (str/split-lines (slurp "inputs/day10.inp"))) ; 1494
+
+  (def test-inp-boojum "9999999999999999999
+9999999998999999999
+9999999987899999999
+9999999876789999999
+9999998765678999999
+9999987654567899999
+9999876543456789999
+9998765432345678999
+9987654321234567899
+9876543210123456789
+9987654321234567899
+9998765432345678999
+9999876543456789999
+9999987654567899999
+9999998765678999999
+9999999876789999999
+9999999987899999999
+9999999998999999999
+9999999999999999999")
+
+  (part-2 (str/split-lines test-inp-boojum)) ; 2044
   )

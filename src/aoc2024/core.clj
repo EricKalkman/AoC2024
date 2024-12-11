@@ -49,6 +49,6 @@
   (some->> (str-thunks 7 day07/part-1 day07/part-2) (apply do-part 7))
   (some->> (line-thunks 8 day08/part-1 day08/part-2) (apply do-part 8))
   (some->> (str-thunks 9 day09/part-1 day09/part-2) (apply do-part 9))
-  (some->> (line-thunks 10 day10/part-1 day10/part-2) (apply do-part 10))
+  (some->> (line-thunks 10 day10/part-1 day10/part-2-smarter) (apply do-part 10))
   (shutdown-agents)
   )
