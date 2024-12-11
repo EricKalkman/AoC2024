@@ -18,6 +18,7 @@
                  vector-count
                  swap-args
                  rcons
+                 vector-fold-left
                  )
          (import (rnrs)
                  (rnrs r5rs)
@@ -235,4 +236,13 @@
     (λ (a b) (f b a)))
 
   (define (rcons a b) (cons b a))
+
+  (define (vector-fold-left f init v . vs)
+    (define len (apply min (map vector-length (cons v vs))))
+    (let loop ([acc init]
+               [idx 0])
+      (if (>= idx len)
+        acc
+        (loop (apply f acc (map (λ (v) (vector-ref v idx)) (cons v vs)))
+              (+ idx 1)))))
 )
