@@ -14,7 +14,7 @@
   (fn
     ([] state)
     ([_prevs cur] (update-visit f
-                                (update state cur #(f % next))))))
+                                (update state cur #(f % cur))))))
 
 (defn bfs
   ([neighfunc src stop?] (bfs neighfunc src stop? nil-visit))
