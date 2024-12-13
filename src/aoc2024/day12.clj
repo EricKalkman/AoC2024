@@ -10,18 +10,9 @@
          (filter #(= color (g/grid-get grid %))))))
 
 (defn num-convex-corners [dirs]
-  ; convex corners
-  (cond
-    ; if cur has 4 dirs facing different plant types, then it is an isolate and has 4 corners
-    (= 4 (count dirs)) 4
-    ; if there are more than two edges facing differen plant types, then we may have at
-    ; least one corner
-    (>= (count dirs) 2)
-    (->> [#{:up :right} #{:up :left} #{:down :right} #{:down :left}]
-         (filter #(set/subset? % dirs))
-         count)
-    ; otherwise, we're interior or on an edge in between corners
-    :else 0))
+  (->> [#{:up :right} #{:up :left} #{:down :right} #{:down :left}]
+       (filter #(set/subset? % dirs))
+       count))
 
 (defn num-concave-corners [grid dirs cur]
   ;concave corners
