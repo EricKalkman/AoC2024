@@ -32,7 +32,35 @@
                  (visit prevs cur))))
       {:prevs prevs :visit visit}))))
 
+(defn dijkstra [neighfunc srcs stop?]
+  (loop [costs (into (sorted-set) (map #(vector 0 %) srcs))
+         visited? #{}
+         prevs {}]
+    (if-let [[n1-cost n1 :as nc] (first costs)]
+      (cond
+        (stop? n1) {:last n1 :cost n1-cost :prevs prevs}
+        (visited? n1) (recur (disj costs nc) visited? prevs)
+        :else
+        (let [[costs prevs]
+              (->> (neighfunc n1)
+                   (reduce
+                     (fn [[costs prevs] [n2 edge-cost]]
+                       (let [new-n2-cost (+ n1-cost edge-cost)]
+                         (if-let [[prev-cost _] (prevs n2)]
+                           (if (<= prev-cost new-n2-cost)
+                             [costs prevs]
+                             [(conj costs [new-n2-cost n2]) (assoc prevs n2 [new-n2-cost n1])])
+                           [(conj costs [new-n2-cost n2]) (assoc prevs n2 [new-n2-cost n1])])))
+                     [(disj costs nc) prevs]))]
+          (recur costs (conj visited? n1) prevs)))
+      {:prevs prevs})))
+
 (comment
   (def g {:a #{:b :c} :b #{:d :e} :c #{:f :g}})
+
+  (def g2 {:a [[:b 1] [:d 10]] :b [[:c 1]] :c [[:d 1]] :d [[:e 1]]})
+
+  (dijkstra g2 [:a] #(= % :d))
+
 
   )
