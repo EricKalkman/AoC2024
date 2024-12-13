@@ -2,6 +2,7 @@
   (:require [aoc2024.parsecomb :as p]
             [aoc2024.searches :as search]
             [aoc2024.grids :as g]
+            [clojure.math.numeric-tower :as m]
             [clojure.string :as str]))
 
 (defn button-parser [id]
@@ -54,21 +55,35 @@
 (defn calc-na-nb [[[a b] [c d]] [prize-x prize-y]]
   [(+ (* a prize-x) (* b prize-y)) (+ (* c prize-x) (* d prize-y))])
 
-(defn num-coins-needed [[ax ay :as a] [bx by :as b] [px py :as prize]]
+(defn solve-colinear [p a b]
+  ; brute-forces the minimum token cost for all m, n that satisfy
+  ; m*a + n*b = p by iterating over all possible m and calculating n
+  (if (not (zero? (rem p (m/gcd a b))))
+    nil
+    (loop [ma (- p (mod p a))
+           min-cost Long/MAX_VALUE]
+      (if (<= ma 0)
+        min-cost
+        (let [remaining (- p ma)]
+          (if (zero? (mod remaining b))
+            (recur (- ma a) (min min-cost (+ (* A-COST (/ ma a)) (* B-COST (/ remaining b)))))
+            (recur (- ma a) min-cost)))))))
+
+(defn num-coins-needed [[ax ay :as a] [bx _by :as b] [px py :as prize]]
   (let [mat (make-inverse-mat a b)]
     (cond
       (some? mat)  ; if a and b aren't co-linear
       (let [[n-a n-b] (calc-na-nb mat prize)]
         (or (and (integer? n-a) (integer? n-b) (+ (* n-a A-COST) (* n-b B-COST)))
             nil))
-      ; if a and b are co-linear, check first if b alone can be used to reach the prize
-      (and (zero? (mod px bx)) (zero? (mod py by)) (= (/ px bx) (/ py by))) (* B-COST (/ px bx))
-      ; else check if a lone can be used to reach the prize
-      (and (zero? (mod px ax)) (zero? (mod py ay)) (= (/ px ax) (/ py ay))) (* A-COST (/ px ax))
+      ; mat = nil -> a and b are co-linear. is the prize on the line defined by a and b?
+      (= (/ px ax) (/ py ay)) (solve-colinear px ax bx)
+      ; if not, there is no solution
       :else nil)))
 
 (defn reposition-prize [n prize]
   (g/coord+ prize [n n]))
+
 
 (defn part [shift s]
   (->> s
@@ -106,4 +121,8 @@ Prize: X=18641, Y=10279")
 
   (part-2 test-inp) ; 875318608908N
   (part-2 (str/trim (slurp "inputs/day13.inp"))) ; 101406661266314N
+
+  (part-1 "Button A: X+20, Y+52
+Button B: X+5, Y+13
+Prize: X=110, Y=286") ; 17
   )
