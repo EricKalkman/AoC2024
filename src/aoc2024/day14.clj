@@ -100,7 +100,7 @@
         min-y (->> (apply min-key (comp second second) (reverse ents)) first)
         k (mod (* (mult-inverse WIDTH HEIGHT) (- min-y min-x)) HEIGHT)
         n (+ min-x (* k WIDTH))]
-    ;(plot-robots w h n (nth ss n))
+    ;(plot-robots WIDTH HEIGHT 77 (nth ss 77))
     n))
 
 (comment
@@ -120,9 +120,9 @@ p=9,5 v=-3,-3")
   (def robots (->> test-inp p/string->stringbuf parse-input :result))
   (first robots) ; {:pos [0 4], :vel [3 -3]}
 
-  (part-1 11 7 test-inp) ; 12
-  (part-1 WIDTH HEIGHT (str/trim (slurp "inputs/day14.inp"))) ; 226548000
+  ;(part-1 test-inp) ; 12
+  (part-1 (str/trim (slurp "inputs/day14.inp"))) ; 226548000
 
-  (part-2 WIDTH HEIGHT (str/trim (slurp "inputs/day14.inp"))) ; 7753
+  (part-2 (str/trim (slurp "inputs/day14.inp"))) ; 7753
 
   )

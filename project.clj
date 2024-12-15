@@ -10,5 +10,5 @@
   :main ^:skip-aot aoc2024.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
-                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
+                       :jvm-opts ["-Dclojure.compiler.direct-linking=true -Xss4m"]}
              :repl {:jvm-opts ["-Xss4m"]}})
