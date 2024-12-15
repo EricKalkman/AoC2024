@@ -105,9 +105,9 @@
           (not (box-coords next-coord)) (recur next-coord (rest commands) box-coords)
           :else
           (let [coords-to-push (->> (search/bfs (partial neighbors box-coords dir)
-                                    next-coord (constantly false))
-                             :prevs
-                             keys)
+                                                next-coord (constantly false))
+                                    :prevs
+                                    keys)
                 boxes-to-push (into #{} (map box-coords) coords-to-push)]
             (if (some #(walls (g/move dir 1 %)) coords-to-push)
               (recur robot (rest commands) box-coords)
@@ -118,18 +118,17 @@
                        (merge $ (->> boxes-to-push (map #(move-box dir %)) make-coords-to-boxes-map))))))))
       {:robot robot :box-coords box-coords})))
 
-
- (defn part-2 [s]
-   (->> s
-        str/trim
-        parse-input
-        stretch-map
-        simulate-part-2
-        :box-coords
-        vals
-        (into #{})
-        (map (comp gps-coordinate first))
-        (reduce +)))
+(defn part-2 [s]
+  (->> s
+       str/trim
+       parse-input
+       stretch-map
+       simulate-part-2
+       :box-coords
+       vals
+       (into #{})
+       (map (comp gps-coordinate first))
+       (reduce +)))
 
 (comment
   (def test-inp
