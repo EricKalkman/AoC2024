@@ -101,20 +101,28 @@
     (if-let [dir (dirmap (first commands))]
       (let [next-coord (g/move dir 1 robot)]
         (cond
+          ; if we would run into a wall
           (walls next-coord) (recur robot (rest commands) box-coords)
+          ; if we are not adjacent to a box, simply move
           (not (box-coords next-coord)) (recur next-coord (rest commands) box-coords)
           :else
           (let [coords-to-push (->> (search/bfs (partial neighbors box-coords dir)
                                                 next-coord (constantly false))
                                     :prevs
-                                    keys)
+                                    keys) ; all coords in line along dir corresponding to boxes
+                ; the boxes themselves
                 boxes-to-push (into #{} (map box-coords) coords-to-push)]
+            ; if one of the boxes is blocked by a wall
             (if (some #(walls (g/move dir 1 %)) coords-to-push)
+              ; do nothing
               (recur robot (rest commands) box-coords)
+              ; advance the robot and update the coord->boxes map
               (recur next-coord
                      (rest commands)
                      (as-> box-coords $
+                       ; remove the boxes to be moved
                        (reduce dissoc $ coords-to-push)
+                       ; re-add the boxes after moving them
                        (merge $ (->> boxes-to-push (map #(move-box dir %)) make-coords-to-boxes-map))))))))
       {:robot robot :box-coords box-coords})))
 
@@ -125,9 +133,9 @@
        stretch-map
        simulate-part-2
        :box-coords
-       vals
-       (into #{})
-       (map (comp gps-coordinate first))
+       vals       ; get boxes
+       (into #{}) ; deduplicate boxes
+       (map (comp gps-coordinate first)) ; use first (leftmost) coordinate to determine gps
        (reduce +)))
 
 (comment
