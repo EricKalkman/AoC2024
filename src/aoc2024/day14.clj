@@ -1,8 +1,7 @@
 (ns aoc2024.day14
   (:require [aoc2024.parsecomb :as p]
             [clojure.string :as str]
-            [clojure.math :as m]
-            [clojure.math.numeric-tower :as mt]))
+            [clojure.math :as m]))
 
 (def parse-coord (p/p-seq p/p-int (p/skip-string ",") p/p-int))
 (def parse-robot (->> (p/p-seq (p/skip-string "p=") parse-coord
@@ -17,6 +16,7 @@
 (defn step-robot [w h {[vr vc] :vel :as robot}]
   (update robot :pos (fn [[row col]] [(mod (+ row vr) w) (mod (+ col vc) h)])))
 (defn step-system [w h robots] (map (partial step-robot h w) robots))
+; note: had to increase java stack size. I guess iterate does that
 (defn steps [w h robots] (iterate (partial step-system h w) robots))
 
 (defn quadrant [w h {[x y] :pos}]
@@ -27,20 +27,19 @@
       (+ (* 2 (quot y (inc half-h)))
          (quot x (inc half-w))))))
 
-(defn part-1 [w h s]
-  (let [steps (->> s
-                   p/string->stringbuf
-                   parse-input
-                   :result
-                   (steps w h))]
-    (as-> (nth steps 100) $
-          (group-by (partial quadrant w h) $)
-          (dissoc $ nil) ; remove robots on middle lines
-          (vals $)
-          (map count $)
-          (reduce * $))))
-
-(defn square [x] (* x x))
+;(defn part-1 [w h s]
+(defn part-1 [s]
+  (as-> s $
+    (p/string->stringbuf $)
+    (parse-input $)
+    (:result $)
+    (steps WIDTH HEIGHT $)
+    (nth $ 100)
+    (group-by (partial quadrant WIDTH HEIGHT) $)
+    (dissoc $ nil) ; remove robots on middle lines
+    (vals $)
+    (map count $)
+    (reduce * $)))
 
 (defn entropies [robots]
   (let [n (count robots)
@@ -87,19 +86,20 @@
 ; k w = y - x (mod h)
 ; k = (w^-1) (y - x) (mod h)
 
-(defn part-2 [w h s]
+;(defn part-2 [w h s]
+(defn part-2 [s]
   (let [ss (->> s
-                  p/string->stringbuf
-                  parse-input
-                  :result
-                  (steps w h))
+                p/string->stringbuf
+                parse-input
+                :result
+                (steps WIDTH HEIGHT))
         ents (->> ss
-                  (take (max w h))
+                  (take (max WIDTH HEIGHT))
                   (map-indexed #(vector %1 (entropies %2))))
         min-x (->> (apply min-key (comp first second) (reverse ents)) first)
         min-y (->> (apply min-key (comp second second) (reverse ents)) first)
-        k (mod (* (mult-inverse w h) (- min-y min-x)) h)
-        n (+ min-x (* k w))]
+        k (mod (* (mult-inverse WIDTH HEIGHT) (- min-y min-x)) HEIGHT)
+        n (+ min-x (* k WIDTH))]
     ;(plot-robots w h n (nth ss n))
     n))
 
