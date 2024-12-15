@@ -22,14 +22,23 @@
     (->> (nodes-visited grid start)
          count)))
 
+;(defn next-turn [grid [coord dir]]
+;  (let [next-coord
+;        (->> (iterate #(g/move dir 1 %) coord)
+;             (drop-while #(and (g/in-grid? grid %)
+;                               (not= \# (g/grid-get grid %))))
+;             first)]
+;    (and (g/in-grid? grid next-coord)
+;         [(g/move dir -1 next-coord) (g/turn-right dir)])))
+
+
 (defn next-turn [grid [coord dir]]
-  (let [next-coord
-        (->> (iterate #(g/move dir 1 %) coord)
-             (drop-while #(and (g/in-grid? grid %)
-                               (not= \# (g/grid-get grid %))))
-             first)]
-    (and (g/in-grid? grid next-coord)
-         [(g/move dir -1 next-coord) (g/turn-right dir)])))
+  (loop [coord (g/move dir 1 coord)]
+    (if-let [^char c (g/grid-get grid coord)]
+      (if (= \# c)
+        [(g/move dir -1 coord) (g/turn-right dir)]
+        (recur (g/move dir 1 coord)))
+      nil)))
 
 (defn in-cycle? [grid start]
   (loop [node [start :up]

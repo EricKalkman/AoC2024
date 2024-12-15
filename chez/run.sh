@@ -1,3 +1,5 @@
 #!/bin/bash
 
-chez --libdirs . --script runner.scm
+CHEZEXEC=scheme
+
+$CHEZEXEC --libdirs . --script runner.scm

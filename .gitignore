@@ -14,3 +14,4 @@ pom.xml.asc
 inputs
 .lsp
 .clj-kondo
+chez/run.sh
