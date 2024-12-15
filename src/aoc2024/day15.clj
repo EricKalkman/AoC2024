@@ -70,20 +70,19 @@
 (defn double-grid-cell [[row col]]
   [[row (* 2 col)] [row (inc (* 2 col))]])
 
-(defn map-coords-to-boxes [boxes]
+(defn make-coords-to-boxes-map [boxes]
   (->> (for [box boxes
              coord box]
          [coord box])
        (into {})))
 
-(defn unfold-map [{:keys [width height walls boxes robot commands]}]
+(defn stretch-map [{:keys [width height walls boxes robot commands]}]
   {:width (* 2 width)
    :height height
    :walls (->> walls (mapcat double-grid-cell) (into #{}))
-   :boxes (->> boxes (map double-grid-cell) (into #{}))
    :box-coords (->> boxes
                     (map double-grid-cell)
-                    map-coords-to-boxes)
+                    make-coords-to-boxes-map)
    :robot [(first robot) (* 2 (second robot))]
    :commands commands})
 
@@ -95,7 +94,7 @@
 (defn move-box [dir box]
   (mapv #(g/move dir 1 %) box))
 
-(defn simulate2 [{:keys [walls box-coords robot commands]}]
+(defn simulate-part-2 [{:keys [walls box-coords robot commands]}]
   (loop [robot robot
          commands commands
          box-coords box-coords]
@@ -116,7 +115,7 @@
                      (rest commands)
                      (as-> box-coords $
                        (reduce dissoc $ coords-to-push)
-                       (merge $ (->> boxes-to-push (map #(move-box dir %)) map-coords-to-boxes))))))))
+                       (merge $ (->> boxes-to-push (map #(move-box dir %)) make-coords-to-boxes-map))))))))
       {:robot robot :box-coords box-coords})))
 
 
@@ -124,8 +123,8 @@
    (->> s
         str/trim
         parse-input
-        unfold-map
-        simulate2
+        stretch-map
+        simulate-part-2
         :box-coords
         vals
         (into #{})
@@ -187,10 +186,10 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^")
 <vv<<^^<<^^")
 
   (let [inp (parse-input test-inp2)
-        expanded (unfold-map inp)
+        expanded (stretch-map inp)
         ]
     (->> expanded
-         simulate2
+         simulate-part-2
          :box-coords
          vals
          (into #{})
