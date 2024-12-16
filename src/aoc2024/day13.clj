@@ -34,6 +34,7 @@
                                     #(= % prize))
                    :prevs
                    (get prize)
+                   first
                    first)))
        (filter identity)
        (reduce +)))
