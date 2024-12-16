@@ -56,7 +56,7 @@
                            (cond
                              (< prev-cost new-n2-cost) [costs prevs]
                              (== prev-cost new-n2-cost)
-                             [(conj costs [new-n2-cost n2])
+                             [costs
                               (update prevs n2 #(conj (or % #{}) [new-n2-cost n1]))]
                              :else [(conj costs [new-n2-cost n2])
                                     (assoc prevs n2 #{[new-n2-cost n1]})])
