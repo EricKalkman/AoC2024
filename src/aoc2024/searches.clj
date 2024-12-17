@@ -73,7 +73,7 @@
           (recur costs (conj! visited? n1) prevs lasts)))
       (assoc {:prevs (persistent! prevs) :lasts lasts}
              :cost
-             (and lasts (first (first lasts)))))))
+             (and lasts (second (first lasts)))))))
 
 (comment
   (def g {:a #{:b :c} :b #{:d :e} :c #{:f :g}})
