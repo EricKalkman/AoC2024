@@ -1,4 +1,5 @@
 (ns aoc2024.searches
+  (:require [clojure.data.priority-map :refer [priority-map]])
   (:import [java.util ArrayDeque]))
 
 (defn nil-visit
@@ -37,19 +38,19 @@
     (assoc! mt k (f cur))))
 
 (defn dijkstra [neighfunc srcs stop?]
-  (loop [costs (into (sorted-set) (map #(vector 0 %)) srcs)
+  (loop [costs (into (priority-map) (map #(vector % 0)) srcs)
          visited? (transient #{})
          prevs (transient {})
          lasts nil]
-    (if-let [[n1-cost n1 :as nc] (first costs)]
+    (if-let [[n1 n1-cost :as nc] (peek costs)]
       (cond
         ; accumulate all nodes in a row that satisfy the stop cond
-        (stop? n1) (recur (disj costs nc) visited? prevs (conj (or lasts #{}) nc))
+        (stop? n1) (recur (pop costs) visited? prevs (conj (or lasts #{}) nc))
         ; lasts /= nil indicates stop condition has been reached; collect all nodes of current cost
         ; that satisfy stop?, discarding nodes of the same cost that don't
-        (and lasts (== n1-cost (first (first lasts)))) (recur (disj costs nc) visited? prevs lasts)
-        lasts {:lasts (map second lasts) :prevs (persistent! prevs) :cost (first (first lasts))}
-        (visited? n1) (recur (disj costs nc) visited? prevs lasts)
+        (and lasts (== n1-cost (second (first lasts)))) (recur (pop costs) visited? prevs lasts)
+        lasts {:lasts (map first lasts) :prevs (persistent! prevs) :cost (second (first lasts))}
+        (visited? n1) (recur (pop costs) visited? prevs lasts)
         :else
         (let [[costs prevs]
               (->> (neighfunc n1)
@@ -62,10 +63,10 @@
                              (== prev-cost new-n2-cost)
                              [costs
                               (update! prevs n2 #(conj % [new-n2-cost n1]))]
-                             :else [(conj costs [new-n2-cost n2])
+                             :else [(assoc costs n2 new-n2-cost)
                                     (assoc! prevs n2 #{[new-n2-cost n1]})])
-                           [(conj costs [new-n2-cost n2]) (assoc! prevs n2 #{[new-n2-cost n1]})])))
-                     [(disj costs nc) prevs]))]
+                           [(assoc costs n2 new-n2-cost) (assoc! prevs n2 #{[new-n2-cost n1]})])))
+                     [(pop costs) prevs]))]
           (recur costs (conj! visited? n1) prevs lasts)))
       (assoc {:prevs (persistent! prevs) :lasts lasts}
              :cost
