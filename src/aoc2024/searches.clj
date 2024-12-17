@@ -37,6 +37,8 @@
   (let [cur (mt k)]
     (assoc! mt k (f cur))))
 
+(defrecord NodeCost [cost nodes])
+
 (defn dijkstra [neighfunc srcs stop?]
   (loop [costs (into (priority-map) (map #(vector % 0)) srcs)
          visited? (transient #{})
@@ -57,15 +59,16 @@
                    (reduce
                      (fn [[costs prevs] [n2 edge-cost]]
                        (let [new-n2-cost (+ n1-cost edge-cost)]
-                         (if-let [[prev-cost _] (first (prevs n2))]
+                         (if-let [^NodeCost prev (prevs n2)]
                            (cond
-                             (< prev-cost new-n2-cost) [costs prevs]
-                             (== prev-cost new-n2-cost)
+                             (< (.cost prev) new-n2-cost) [costs prevs]
+                             (== (.cost prev) new-n2-cost)
                              [costs
-                              (update! prevs n2 #(conj % [new-n2-cost n1]))]
+                              (update! prevs n2 (fn [^NodeCost nc] (update nc :nodes (fn [set] (conj set n1)))))]
                              :else [(assoc costs n2 new-n2-cost)
-                                    (assoc! prevs n2 #{[new-n2-cost n1]})])
-                           [(assoc costs n2 new-n2-cost) (assoc! prevs n2 #{[new-n2-cost n1]})])))
+                                    (assoc! prevs n2 (->NodeCost new-n2-cost #{n1}))])
+                           [(assoc costs n2 new-n2-cost)
+                            (assoc! prevs n2 (->NodeCost new-n2-cost #{n1}))])))
                      [(pop costs) prevs]))]
           (recur costs (conj! visited? n1) prevs lasts)))
       (assoc {:prevs (persistent! prevs) :lasts lasts}

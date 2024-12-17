@@ -50,7 +50,7 @@
                    #(map :pos %)
                    keys
                    :prevs
-                   #(search/bfs (comp (partial map second) prevs) % (constantly false))))
+                   #(search/bfs (comp :nodes prevs) % (constantly false))))
          (into #{})
          count)))
 
