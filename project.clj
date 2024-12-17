@@ -6,7 +6,8 @@
             :year 2024
             :key "gpl-3.0"}
   :dependencies [[org.clojure/clojure "1.11.1"]
-                 [org.clojure/math.numeric-tower "0.1.0"]]
+                 [org.clojure/math.numeric-tower "0.1.0"]
+                 [org.clojure/data.priority-map "1.2.0"]]
   :main ^:skip-aot aoc2024.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
