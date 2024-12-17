@@ -60,22 +60,7 @@
          count)))
 
 (comment
-  (def test-inp "....#.....
-.........#
-..........
-..#.......
-.......#..
-..........
-.#..^.....
-........#.
-#.........
-......#...")
-
-  (def lines (str/split-lines test-inp))
-
-  (part-1 lines) ; 41
   (part-1 (str/split-lines (slurp "inputs/day06.inp"))) ; 4696
 
-  (part-2 lines) ; 6
   (time (part-2 (str/split-lines (slurp "inputs/day06.inp")))) ; 1443
   )

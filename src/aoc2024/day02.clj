@@ -26,18 +26,7 @@
        count))
 
 (comment
-  (def test-inp "7 6 4 2 1
-1 2 7 8 9
-9 7 6 2 1
-1 3 2 4 5
-8 6 4 4 1
-1 3 6 7 9")
-
-  (def lines (str/split-lines test-inp))
-
-  (part-1 lines) ; 2
   (part-1 (str/split-lines (slurp "inputs/day02.inp"))) ; 663
 
-  (part-2 lines) ; 4
   (part-2 (str/split-lines (slurp "inputs/day02.inp"))) ; 692
   )

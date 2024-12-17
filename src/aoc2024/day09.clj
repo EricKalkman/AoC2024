@@ -95,13 +95,8 @@
 (def part-2 (partial part move-files-to-start-faster))
 
 (comment
-  (def test-inp "2333133121414131402")
-
-  (def parsed (parse-input test-inp))
-  (part-1 test-inp) ; 1928
   (part-1 (slurp "inputs/day09.inp")) ; 6310675819476
 
-  (part-2 test-inp) ; 2858
   (part-2-old (slurp "inputs/day09.inp")) ; 6335972980679
   (part-2 (slurp "inputs/day09.inp")) ; 6335972980679
 

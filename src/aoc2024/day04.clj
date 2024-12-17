@@ -43,43 +43,7 @@
 (def part-2 (partial part "MAS" MAS-CHECKERS))
 
 (comment
-  (def test-inp "MMMSXXMASM
-MSAMXMSMSA
-AMXSXMAAMM
-MSAMASMSMX
-XMASAMXAMM
-XXAMMXXAMA
-SMSMSASXSS
-SAXAMASAAA
-MAMMMXMMMM
-MXMXAXMASX")
-
-  (def lines (str/split-lines test-inp))
-
-  (def grid (g/parse-grid lines))
-
-  (part-1 lines) ; 18
   (part-1 (str/split-lines (slurp "inputs/day04.inp"))) ; 2297
 
-  (def test-inp2 ".M.S......
-..A..MSMS.
-.M.S.MAA..
-..A.ASMSM.
-.M.S.M....
-..........
-S.S.S.S.S.
-.A.A.A.A..
-M.M.M.M.M.
-..........")
-
-  (def XMAS-KERNEL [[[-1 -1] \M] [[-1 1] \S]
-                    [[0 0] \A]
-                    [[1 -1] \M] [[1 1] \S]])
-
-
-  (def lines2 (str/split-lines test-inp2))
-  (def grid2 (g/parse-grid lines2))
-
-  (part-2 grid2) ; 9
   (part-2 (str/split-lines (slurp "inputs/day04.inp"))) ; 1745
   )

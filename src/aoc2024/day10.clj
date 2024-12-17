@@ -73,74 +73,7 @@
          (reduce +))))
 
 (comment
-  (def test-inp "0123
-1234
-8765
-9876")
-  (def test-inp2 "...0...
-...1...
-...2...
-6543456
-7.....7
-8.....8
-9.....9")
-
-  (def test-inp3 "..90..9
-...1.98
-...2..7
-6543456
-765.987
-876....
-987....")
-
-  (def test-inp4 "10..9..
-2...8..
-3...7..
-4567654
-...8..3
-...9..2
-.....01")
-
-  (def test-inp5 "89010123
-78121874
-87430965
-96549874
-45678903
-32019012
-01329801
-10456732")
-
-  (part-1 (str/split-lines test-inp)) ; 1
-  (part-1 (str/split-lines test-inp2)) ; 2
-  (part-1 (str/split-lines test-inp3)) ; 4
-  (part-1 (str/split-lines test-inp4)) ; 3
-
-  (part-1 (str/split-lines test-inp5)) ; 36
   (part-1 (str/split-lines (slurp "inputs/day10.inp"))) ; 646
-
-  (def test-inp6 ".....0.
-..4321.
-..5..2.
-..6543.
-..7..4.
-..8765.
-..9....")
-  (def test-inp7
-"..90..9
-...1.98
-...2..7
-6543456
-765.987
-876....
-987....")
-  (part-2 (str/split-lines test-inp6)) ; 3
-  (part-2 (str/split-lines test-inp7)) ; 13
-
-  (def g6 (parse-input (str/split-lines test-inp6)))
-  (def g7 (parse-input (str/split-lines test-inp7)))
-
-  (trail-rating-smarter g7 [0 3])
-
   (part-2 (str/split-lines (slurp "inputs/day10.inp"))) ; 1494
   (part-2-smarter (str/split-lines (slurp "inputs/day10.inp"))) ; 1494
 

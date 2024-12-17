@@ -21,22 +21,8 @@
       (reduce + x))))
 
 (comment
-  (def test-inp "3   4
-4   3
-2   5
-1   3
-3   9
-3   3")
-  (def lines (str/split test-inp #"\n"))
-  
-  (def spt (map #(map parse-long (str/split % #" +")) lines))
-  (apply map vector spt) ; ([3 4 2 1 3 3] [4 3 5 3 9 3])
-
-  (part-1 lines) ; 11
-
   (def puzzle-inp (str/split-lines (slurp "inputs/day01.inp")))
   (part-1 puzzle-inp) ; 2176849
 
-  (part-2 lines) ; 31
   (part-2 puzzle-inp) ; 23384288
 )

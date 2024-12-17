@@ -27,11 +27,7 @@
       sum)))
 
 (comment
-  (def test-inp "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))")
-  (part-1 test-inp) ; 161
   (part-1 (slurp "inputs/day03.inp")) ; 182619815
-
-  (def test-inp2 "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))")
 
   (part-2 (slurp "inputs/day03.inp")) ; 80747545
 

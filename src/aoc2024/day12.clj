@@ -75,48 +75,8 @@
          (reduce +))))
 
 (comment
-
-  (def test-inp
-"AAAA
-BBCD
-BBCC
-EEEC")
-
-  (def test-inp2 "OOOOO
-OXOXO
-OOOOO
-OXOXO
-OOOOO")
-
-  (def test-inp3
-".....
-.aaa.
-.aa..
-.aaa.
-.....")
-
-  (def test-inp4
-"RRRRIICCFF
-RRRRIICCCF
-VVRRRCCFFF
-VVRCCCJFFF
-VVVVCJJCFE
-VVIVCCJJEE
-VVIIICJJEE
-MIIIIIJJEE
-MIIISIJEEE
-MMMISSJEEE")
-
-  (def g1 (g/parse-grid (str/split-lines test-inp)))
-  (def g2 (g/parse-grid (str/split-lines test-inp2)))
-  (def g3 (g/parse-grid (str/split-lines test-inp3)))
-  (def g4 (g/parse-grid (str/split-lines test-inp4)))
-
-  (find-plots g1)
-  (part-1 (str/split-lines test-inp4)) ; 1930
   (part-1 (str/split-lines (slurp "inputs/day12.inp"))) ; 1446042
 
-  (part-2 (str/split-lines test-inp4)) ; 1206
   (part-2 (str/split-lines (slurp "inputs/day12.inp"))) ; 902742
 
   )

@@ -68,24 +68,7 @@
 (def part-2 (partial part [:+ :* :||]))
 
 (comment
-  (def test-inp "190: 10 19
-3267: 81 40 27
-83: 17 5
-156: 15 6
-7290: 6 8 6 15
-161011: 16 10 13
-192: 17 8 14
-21037: 9 7 18 13
-292: 11 6 16 20")
-  
-  (def inp (:result (parse-input (p/string->stringbuf test-inp))))
-
-  (part-1 test-inp) ; 3749
-; ([190 [[:1 10] [:* 19]]]
-;  [3267 [[:1 81] [:* 40] [:+ 27]]]
-;  [292 [[:1 11] [:+ 6] [:* 16] [:+ 20]]])
   (part-1 (slurp "inputs/day07.inp")) ; 66343330034722
 
-  (part-2 test-inp) ; 11387
   (part-2 (slurp "inputs/day07.inp")) ; 637696070419031
 )

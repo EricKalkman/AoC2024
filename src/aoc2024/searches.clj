@@ -46,7 +46,7 @@
          lasts nil]
     (if-let [[n1 n1-cost :as nc] (peek costs)]
       (cond
-        ; accumulate all nodes in a row that satisfy the stop cond
+        ; accumulate all nodes that satisfy the stop cond
         (stop? n1) (recur (pop costs) visited? prevs (conj (or lasts #{}) nc))
         ; lasts /= nil indicates stop condition has been reached; collect all nodes of current cost
         ; that satisfy stop?, discarding nodes of the same cost that don't
