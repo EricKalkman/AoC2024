@@ -22,7 +22,7 @@
       (trace-path dst src)))
 
 (defn part-1-with-pars [w h n s]
-  (let [coords (into (sorted-set) (take n) (parse-input (str/trim s)))
+  (let [coords (into #{} (take n) (parse-input (str/trim s)))
         src [0 0]
         dst [(dec w) (dec h)]]
     (-> (find-path coords w h src dst)
@@ -32,13 +32,13 @@
 
 (defn part-2-with-pars [w h n s]
   (let [coords (parse-input (str/trim s))
-        coord-set (into (sorted-set) (take n) coords)
+        coord-set (into #{} (take n) coords)
         src [0 0]
         dst [(dec w) (dec h)]]
     (loop [coords-to-drop (drop n coords)
            n-dropped n
            coord-set coord-set
-           current-path (some->> (find-path coord-set w h src dst) (into (sorted-set)))]
+           current-path (some->> (find-path coord-set w h src dst) (into #{}))]
       (if current-path
         (if-let [to-drop (first coords-to-drop)]
           (if (current-path to-drop)
@@ -60,5 +60,5 @@
   (part-1-with-pars 71 71 1024 (slurp "inputs/day18.inp")) ; 446
   (part-1 (slurp "inputs/day18.inp")) ; 446
   (part-2-with-pars 71 71 1024 (slurp "inputs/day18.inp")) ; "39,40"
-  (part-2 (slurp "inputs/day18.inp")) ; "39,40"
+  (time (part-2 (slurp "inputs/day18.inp"))) ; "39,40"
   )
