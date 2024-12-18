@@ -57,19 +57,41 @@
          :output
          (str/join \,))))
 
+(defn a->bits [a]
+  (loop [s ""
+         a a]
+    (if (zero? a)
+      s
+      (let [lo (bit-and a 7)
+            hi (bit-shift-right a 3)]
+        (recur (str (Integer/toString lo 2) "_" s)
+               hi)))))
+
 (defn solve-quinoid [commands]
   (let [len (count commands)]
-    (loop [a 1
+    (loop [a 0
+           cur-word 0
+           word-stack []
            ridx 0]
-      (if (>= ridx len)
+      (cond
+        (>= ridx len)
         ; right shift needed to undo the last left shift that would've made room
         ; for another digit
         [(bit-shift-right a 3)
          (:output (run-program (->State 0 (bit-shift-right a 3) 0 0 []) commands))]
-        (let [res (:output (run-program (->State 0 a 0 0 []) commands))]
-          (if (== (.nth res (- (count res) ridx 1)) (.nth commands (- len ridx 1)))
-            (recur (bit-shift-left a 3) (inc ridx))
-            (recur (inc a) ridx)))))))
+
+        ; if we've scanned all possible values of this word, backtrack
+        ; note: will fail hard due to pop on empty vec if there is no solution
+        (>= cur-word (bit-shift-left 1 3))
+        (recur (bit-and-not (bit-shift-right a 3) 7)
+               (inc (peek word-stack)) (pop word-stack) (dec ridx))
+
+        :else
+        (let [a-to-run (bit-or a cur-word)
+              res (:output (run-program (->State 0 a-to-run 0 0 []) commands))]
+          (if (= res (subvec commands (- len ridx 1) len))
+            (recur (bit-shift-left a-to-run 3) 0 (conj word-stack cur-word) (inc ridx))
+            (recur a (inc cur-word) word-stack ridx)))))))
 
 (defn part-2 [s]
   (->> s
@@ -83,7 +105,16 @@
 (comment
   (part-1 (slurp "inputs/day17.inp")) ; "5,1,4,0,5,1,0,2,6"
 
-  (def real-p (->> (slurp "inputs/day17.inp") p/string->stringbuf parse-input :result))
-
   (part-2 (slurp "inputs/day17.inp")) ; 202322936867370
+
+  (def reddit-inp "Register A: 12345678
+Register B: 0
+Register C: 0
+
+Program: 2,4,1,0,7,5,1,5,0,3,4,5,5,5,3,0")
+
+  (part-1 reddit-inp) ; "6,0,4,5,4,5,2,0"
+  (part-2 reddit-inp) ; 202797954918051
+  (a->bits 202797954918051) ; "101_110_0_111_0_110_10_100_0_100_0_110_11_10_100_11_"
+
   )
