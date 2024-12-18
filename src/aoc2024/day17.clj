@@ -57,19 +57,18 @@
          :output
          (str/join \,))))
 
-(defn solve [commands]
+(defn solve-quinoid [commands]
   (let [len (count commands)]
     (loop [a 1
            ridx 0]
       (if (>= ridx len)
+        ; right shift needed to undo the last left shift that would've made room
+        ; for another digit
         [(bit-shift-right a 3)
          (:output (run-program (->State 0 (bit-shift-right a 3) 0 0 []) commands))]
         (let [res (:output (run-program (->State 0 a 0 0 []) commands))]
-          (cond
-            (== (.nth res (- (count res) ridx 1)) (.nth commands (- len ridx 1)))
-            (recur (bit-shift-left a 3)
-                   (inc ridx))
-            :else
+          (if (== (.nth res (- (count res) ridx 1)) (.nth commands (- len ridx 1)))
+            (recur (bit-shift-left a 3) (inc ridx))
             (recur (inc a) ridx)))))))
 
 (defn part-2 [s]
@@ -78,7 +77,7 @@
        parse-input
        :result
        :commands
-       solve
+       solve-quinoid
        first))
 
 (comment
