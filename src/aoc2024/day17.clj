@@ -88,10 +88,24 @@
 
         :else
         (let [a-to-run (bit-or a cur-word)
-              res (:output (run-program (->State 0 a-to-run 0 0 []) commands))]
-          (if (= res (subvec commands (- len ridx 1) len))
+              res (.output (run-program (->State 0 a-to-run 0 0 []) commands))]
+          (if (= (.nth res 0) (.nth commands (- len ridx 1)))
             (recur (bit-shift-left a-to-run 3) 0 (conj word-stack cur-word) (inc ridx))
             (recur a (inc cur-word) word-stack ridx)))))))
+
+(defn solve-quinoid-recursive [commands idx a]
+  (if (< idx 0)
+    a
+    (->> (range (bit-shift-left 1 3))
+         (map #(let [new-a (bit-or % (bit-shift-left a 3))]
+                 (-> (->State 0 new-a 0 0 [])
+                     (run-program commands)
+                     (.output)
+                     (vector new-a))))
+         (some (fn [[output new-a]]
+                 (and (= (.nth commands idx)
+                         (.nth output 0))
+                      (solve-quinoid-recursive commands (dec idx) new-a)))))))
 
 (defn part-2 [s]
   (->> s
@@ -102,10 +116,19 @@
        solve-quinoid
        first))
 
+(defn part-2-recursive [s]
+  (let [cmds (->> s
+                  p/string->stringbuf
+                  parse-input
+                  :result
+                  :commands)]
+    (solve-quinoid-recursive cmds (dec (count cmds)) 0)))
+
 (comment
   (part-1 (slurp "inputs/day17.inp")) ; "5,1,4,0,5,1,0,2,6"
 
-  (part-2 (slurp "inputs/day17.inp")) ; 202322936867370
+  (part-2 (slurp "inputs/day17.inp"))           ; 202322936867370
+  (part-2-recursive (slurp "inputs/day17.inp")) ; 202322936867370
 
   (def reddit-inp "Register A: 12345678
 Register B: 0
@@ -115,6 +138,7 @@ Program: 2,4,1,0,7,5,1,5,0,3,4,5,5,5,3,0")
 
   (part-1 reddit-inp) ; "6,0,4,5,4,5,2,0"
   (part-2 reddit-inp) ; 202797954918051
+  (part-2-recursive reddit-inp) ; 202797954918051
   (a->bits 202797954918051) ; "101_110_0_111_0_110_10_100_0_100_0_110_11_10_100_11_"
 
   )
