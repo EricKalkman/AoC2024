@@ -65,6 +65,6 @@
   (some->> (str-thunks 15 day15/part-1 day15/part-2) (apply do-part 15))
   (some->> (str-thunks 16 day16/part-1 day16/part-2) (apply do-part 16))
   (some->> (str-thunks 17 day17/part-1 day17/part-2) (apply do-part 17))
-  (some->> (str-thunks 18 day18/part-1 day18/part-2) (apply do-part 18))
+  (some->> (str-thunks 18 day18/part-1 day18/part-2-bs) (apply do-part 18))
   (shutdown-agents)
   )
