@@ -25,7 +25,7 @@
          visit visit]
     (if-let [cur (and (not (.isEmpty q)) (.pop q))]
       (if (stop? cur)
-        {:prevs (persistent! prevs) :last cur :visit (visit cur)}
+        {:prevs (persistent! prevs) :last cur :visit (visit prevs cur)}
         (let [neighs (->> (neighfunc cur) (filterv (complement prevs)))
               new-prevs (reduce #(assoc! %1 %2 cur) prevs neighs)]
           (recur (reduce #(doto %1 (.addLast %2)) q neighs)
