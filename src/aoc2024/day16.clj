@@ -28,8 +28,10 @@
     (if (= end pos)
       []
       (->> [[(->node (g/move dir 1 pos) dir) MOVE-COST]
-            [(->node pos (g/turn-left dir)) TURN-COST]
-            [(->node pos (g/turn-right dir)) TURN-COST]]
+            [(->node (g/move (g/turn-left dir) 1 pos) (g/turn-left dir))
+             (+ MOVE-COST TURN-COST)]
+            [(->node (g/move (g/turn-right dir) 1 pos) (g/turn-right dir))
+             (+ MOVE-COST TURN-COST)]]
            (filterv #(spaces (.pos ^node (first %))))))))
 
 (defn part-1 [s]
