@@ -20,6 +20,16 @@
         (recur (assoc counts idx cur-count)
                (inc idx))))))
 
+(def count-combinations-recursive
+  (memoize
+    (fn [pats design]
+      (if (empty? design)
+        1
+        (->> pats
+             (filter #(str/starts-with? design %))
+             (map #(count-combinations-recursive pats (subs design (count %))))
+             (reduce +))))))
+
 (defn part-1 [s]
   (let [{:keys [patterns designs]} (parse-input s)]
     (->> designs
@@ -37,7 +47,7 @@
   (def test-inp (slurp "inputs/day19.test"))
 
   (let [{:keys [patterns designs]} (parse-input test-inp)]
-    (map #(count-combinations patterns %) designs)) ; (2 1 4 6 0 1 2 0)
+    (map #(count-combinations-recursive patterns %) designs)) ; (2 1 4 6 0 1 2 0)
   (part-1 test-inp) ; 6
   (part-2 test-inp) ; 16
   (part-1 (slurp "inputs/day19.inp")) ; 236
