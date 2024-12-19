@@ -1,5 +1,7 @@
 #!/bin/bash
 
-CHEZEXEC=scheme
+if [[ -z $SCHEME_EXEC ]]; then
+  SCHEME_EXEC='scheme --libdirs . --script '
+fi
 
-$CHEZEXEC --libdirs . --script runner.scm
+$SCHEME_EXEC runner.scm
