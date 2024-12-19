@@ -28,6 +28,7 @@
                  parse-int
 
                  WHITESPACE ws skip-ws nl skip-nl
+                 LOWERCASE UPPERCASE LETTERS
 
                  list-of
                  label
@@ -251,6 +252,9 @@
                   (if (eqv? (car lst) 'missing) num (- num))))))
 
   (define WHITESPACE " \n\r\t")
+  (define LOWERCASE "abcdefghijklmnopqrstuvwxyz")
+  (define UPPERCASE "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  (define LETTERS (string-append LOWERCASE UPPERCASE))
   
   (define ws (charset+ WHITESPACE))
   (define skip-ws (skip ws))
