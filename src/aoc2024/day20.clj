@@ -27,10 +27,12 @@
   ([r1 c1 r2 c2]
    (+ (abs (- r1 r2)) (abs (- c1 c2)))))
 
-(defn circle-coords [[r c] radius]
+(defn circle-coords [height width [r c] radius]
   (for [row (range (- r radius) (inc (+ r radius)))
-        col (range (- c radius) (inc (+ c radius)))
-        :when (<= (manh-dist row col r c) radius)]
+        col (range (- c (- radius (abs (- row r))))
+                   (inc (+ c (- radius (abs (- r row))))))
+        :when (and (<= 0 row (dec height))
+                   (<= 0 col (dec width)))]
     [row col]))
 
 (def MAX-COL 1000)
@@ -38,61 +40,46 @@
 
 (defn hash-coord [[row col]] (+ col (* MAX-COL row)))
 
-(defn cheat-from [max-cheat-time path-lens cur]
+(defn cheat-from [max-cheat-time height width path-lens cur]
   (let [cur-path-len (path-lens (hash-coord cur))]
-    (->> (circle-coords cur max-cheat-time)
+    (->> (circle-coords height width cur max-cheat-time)
          (keep #(if-let [dst-path-len (path-lens (hash-coord %))]
                   (let [new-path-len (manh-dist cur %)
                         length-diff (- cur-path-len dst-path-len
                                        new-path-len)]
                     (if (<= length-diff 0)
                       nil
-                      [[cur %] length-diff]))
+                      length-diff))
                   nil)))))
 
-(defn part-1-with-params [min-savings max-cheat-time s]
-  (let [{:keys [start end walls]} (parse-input s)
+(defn part-with-params [min-savings max-cheat-time s]
+  (let [{:keys [grid start end walls]} (parse-input s)
+        height (g/height grid)
+        width (g/width grid)
         path (-> (search/bfs (partial plain-neighbors walls)
                              start
                              #(= % end))
                   :prevs
                   (trace-path end start))
-        path-lens (into {} (map vector (map hash-coord path) (range)))]
+        path-lens (zipmap (map hash-coord path) (range))]
     (->> path
-         (mapcat #(cheat-from max-cheat-time path-lens %))
-         (filter #(>= (second %) min-savings))
+         (mapcat #(cheat-from max-cheat-time height width path-lens %))
+         (filter #(>= % min-savings))
          count)))
 
-(def part-1 (partial part-1-with-params 100 2))
-(def part-2 (partial part-1-with-params 100 20))
+(def part-1 (partial part-with-params 100 2))
+(def part-2 (partial part-with-params 100 20))
 
 (comment
-
-  (def test-inp "###############
-#...#...#.....#
-#.#.#.#.#.###.#
-#S#...#.#.#...#
-#######.#.#.###
-#######.#.#...#
-#######.#.###.#
-###..E#...#...#
-###.#######.###
-#...###...#...#
-#.#####.#.###.#
-#.#...#.#.#...#
-#.#.#.#.#.#.###
-#...#...#...###
-###############")
-
-  (def lines (str/split-lines test-inp))
+  (def lines (str/split-lines (slurp "inputs/day20.test")))
   (def inp-lines (str/split-lines (slurp "inputs/day20.inp")))
 
-  (part-1-with-params 0 2 lines) ; 44
+  (part-with-params 0 2 lines) ; 44
   (+ 32 31 29 39 25 23 20 19 12 14 12 22 4 3) ; 285
-  (part-1-with-params 50 20 lines) ; 285
+  (part-with-params 50 20 lines) ; 285
 
   (part-1 inp-lines) ; 1365
 
-  (time (part-2 inp-lines)) ; 986082; 1875 ms
+  (time (part-2 inp-lines)) ; 986082
 
   )
