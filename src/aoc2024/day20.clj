@@ -30,10 +30,7 @@
 (defn circle-coords [[r c] radius]
   (for [row (range (- r radius) (inc (+ r radius)))
         col (range (- c (- radius (abs (- row r))))
-                   (inc (+ c (- radius (abs (- r row))))))
-        ;:when (and (<= 0 row (dec height))
-        ;           (<= 0 col (dec width)))
-        ]
+                   (inc (+ c (- radius (abs (- r row))))))]
     [row col]))
 
 (def MAX-COL 1000)
@@ -41,32 +38,30 @@
 
 (defn hash-coord [[row col]] (+ col (* MAX-COL row)))
 
-(defn cheat-from [max-cheat-time path-lens cur]
+(defn cheat-from [min-savings max-cheat-time path-lens cur]
   (let [cur-path-len (path-lens (hash-coord cur))]
     (->> (circle-coords cur max-cheat-time)
-         (keep #(if-let [dst-path-len (path-lens (hash-coord %))]
-                  (let [new-path-len (manh-dist cur %)
-                        length-diff (- cur-path-len dst-path-len
-                                       new-path-len)]
-                    (if (<= length-diff 0)
-                      nil
-                      length-diff))
-                  nil)))))
+         (reduce #(if-let [dst-path-len (path-lens (hash-coord %2))]
+                    (let [new-path-len (manh-dist cur %2)
+                          length-diff (- cur-path-len dst-path-len
+                                         new-path-len)]
+                      (if (< length-diff min-savings)
+                        %1
+                        (inc %1)))
+                    %1)
+                 0))))
 
 (defn part-with-params [min-savings max-cheat-time s]
   (let [{:keys [start end walls]} (parse-input s)
         path (-> (search/bfs (partial plain-neighbors walls)
                              start
                              #(= % end))
-                  :prevs
-                  (trace-path end start))
+                 :prevs
+                 (trace-path end start))
         path-lens (zipmap (map hash-coord path) (range))]
     (->> path
-         (transduce
-           (comp
-             (mapcat #(cheat-from max-cheat-time path-lens %))
-             (map #(if (>= % min-savings) 1 0)))
-           + 0))))
+         (pmap #(cheat-from min-savings max-cheat-time path-lens %))
+         (reduce +))))
 
 (def part-1 (partial part-with-params 100 2))
 (def part-2 (partial part-with-params 100 20))
