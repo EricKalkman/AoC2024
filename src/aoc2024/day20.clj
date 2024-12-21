@@ -27,12 +27,13 @@
   ([r1 c1 r2 c2]
    (+ (abs (- r1 r2)) (abs (- c1 c2)))))
 
-(defn circle-coords [height width [r c] radius]
+(defn circle-coords [[r c] radius]
   (for [row (range (- r radius) (inc (+ r radius)))
         col (range (- c (- radius (abs (- row r))))
                    (inc (+ c (- radius (abs (- r row))))))
-        :when (and (<= 0 row (dec height))
-                   (<= 0 col (dec width)))]
+        ;:when (and (<= 0 row (dec height))
+        ;           (<= 0 col (dec width)))
+        ]
     [row col]))
 
 (def MAX-COL 1000)
@@ -40,9 +41,9 @@
 
 (defn hash-coord [[row col]] (+ col (* MAX-COL row)))
 
-(defn cheat-from [max-cheat-time height width path-lens cur]
+(defn cheat-from [max-cheat-time path-lens cur]
   (let [cur-path-len (path-lens (hash-coord cur))]
-    (->> (circle-coords height width cur max-cheat-time)
+    (->> (circle-coords cur max-cheat-time)
          (keep #(if-let [dst-path-len (path-lens (hash-coord %))]
                   (let [new-path-len (manh-dist cur %)
                         length-diff (- cur-path-len dst-path-len
@@ -53,9 +54,7 @@
                   nil)))))
 
 (defn part-with-params [min-savings max-cheat-time s]
-  (let [{:keys [grid start end walls]} (parse-input s)
-        height (g/height grid)
-        width (g/width grid)
+  (let [{:keys [start end walls]} (parse-input s)
         path (-> (search/bfs (partial plain-neighbors walls)
                              start
                              #(= % end))
@@ -63,9 +62,11 @@
                   (trace-path end start))
         path-lens (zipmap (map hash-coord path) (range))]
     (->> path
-         (mapcat #(cheat-from max-cheat-time height width path-lens %))
-         (filter #(>= % min-savings))
-         count)))
+         (transduce
+           (comp
+             (mapcat #(cheat-from max-cheat-time path-lens %))
+             (map #(if (>= % min-savings) 1 0)))
+           + 0))))
 
 (def part-1 (partial part-with-params 100 2))
 (def part-2 (partial part-with-params 100 20))
