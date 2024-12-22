@@ -17,7 +17,7 @@
 (defn part-1 [lines]
   (->> lines
        (map parse-long)
-       (map #(->> % (iterate next-secret) (take (inc 2000)) last))
+       (map #(as-> % $ (iterate next-secret $) (nth $ 2000)))
        (reduce +)))
 
 (defn hash-quartet [^long a ^long b ^long c ^long d]
