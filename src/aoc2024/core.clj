@@ -22,6 +22,7 @@
             [aoc2024.day18 :as day18]
             [aoc2024.day19 :as day19]
             [aoc2024.day20 :as day20]
+            [aoc2024.day21 :as day21]
             ))
 
 (defn do-file-lines [fname f]
@@ -70,5 +71,6 @@
   (some->> (str-thunks 18 day18/part-1 day18/part-2-bs) (apply do-part 18))
   (some->> (str-thunks 19 day19/part-1 day19/part-2) (apply do-part 19))
   (some->> (line-thunks 20 day20/part-1 day20/part-2) (apply do-part 20))
+  (some->> (line-thunks 21 day21/part-1 day21/part-2) (apply do-part 21))
   (shutdown-agents)
   )

@@ -35,6 +35,19 @@
    :down :right
    :right :up})
 
+(defn dir-of [[row col]]
+  (if (and (zero? row) (zero? col))
+    nil
+    (let [ar (abs row) ac (abs col)]
+      (if (> ar ac)
+        (if (< row 0) :up :down)
+        (if (< col 0) :left :right)))))
+
+(defn get-axis [[row col] dir]
+  (case dir
+    :up row :down row
+    :left col :right col))
+
 (defn move
   "(move dir n [row col]) creates a new point [r' c'] where r' and c' are the coordinates
   of moving n steps in direction dir (see DIRS4)"
