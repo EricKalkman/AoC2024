@@ -25,7 +25,7 @@
      (* 20 (+ (+ 9 c)
               (* 20 (+ (+ 9 b) (* 20 (+ 0 a))))))))
 
-(defn part-2-secrets-mod-10
+(defn part-2-secret-diffs-mod-10
   "Returns seq of [diff, price at end of diff] for 2000 new secrets"
   [^long s]
   ^clojure.lang.PersistentVector
@@ -46,7 +46,7 @@
   (->> lines
        (pmap #(->> %
                    parse-long
-                   part-2-secrets-mod-10
+                   part-2-secret-diffs-mod-10
                    (partition 4 1)
                    (reduce
                      (fn [seq-to-winnings ps]
