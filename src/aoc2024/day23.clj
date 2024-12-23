@@ -15,6 +15,13 @@
         (reduce #(update %1 %2 (fn [set] (disj set v))) g $)
         (dissoc $ v)))
 
+(defn pairs [col]
+  (let [[h & t] col]
+    (if (empty? t)
+      '()
+      (lazy-cat (map #(vector h %) t)
+                (pairs (rest col))))))
+
 (defn clique-3 [g]
   ; note: sorting useless for test input
   (loop [g g
@@ -49,8 +56,9 @@
   (if (and (empty? possible-extensions) (empty? excluded))
     [clique-candidate]
     (loop [cliques []
-           p possible-extensions]
-      (if-let [v (first p)]
+           possible-extensions possible-extensions
+           excluded excluded]
+      (if-let [v (first possible-extensions)]
         (recur (into cliques
                      ; find all maximal cliques containing v
                      (bron-korbosch-helper
@@ -58,10 +66,11 @@
                        ; add v to current candidate clique
                        (conj clique-candidate v)
                        ; narrow possible extensions to only neighbors of v
-                       (set/intersection p (g v))
+                       (set/intersection possible-extensions (g v))
                        ; narrow possible exclusions only to neighbors of v
                        (set/intersection excluded (g v))))
-               (disj p v))
+               (disj possible-extensions v)
+               (conj excluded v))
         cliques))))
 
 (defn bron-korbosch
@@ -75,7 +84,8 @@
        bron-korbosch
        (apply max-key count)
        sort
-       (str/join ",")))
+       (str/join ",")
+       ))
 
 ;; Everything below here was the result of relaxing assumpations about the problem.
 ;; They are not correct, but they did end up giving the correct answer for my input.
@@ -112,7 +122,8 @@
          (map #(find-a-maximal-clique g % vs))
          (apply max-key count)
          sort
-         (str/join ","))))
+         (str/join ",")
+         )))
 
 (comment
   (def test-inp (slurp "inputs/day23.test"))
@@ -123,15 +134,21 @@
 
   (def g (parse-graph test-lines))
   (count (bron-korbosch g)) ; 36
-  (count g)
+  (count g) ; 16
 
   (count (clique-3 g)) ; 12
   (count (clique-3 (parse-graph inp-lines))) ; 11011
+
+  (def g2 (parse-graph inp-lines))
+  (every? #(= 13 (count %)) (vals g2)) ; true ; huh
+  (require '[aoc2024.searches :as search])
+  (count (:prevs (search/bfs g2 "aq" (constantly false))))
 
   (part-1 test-lines) ; 7
   (part-1 inp-lines) ; 1411
   (part-2 test-lines) ; "co,de,ka,ta"
   (time (part-2 inp-lines)) ; "aq,bn,ch,dt,gu,ow,pk,qy,tv,us,yx,zg,zu"
+  (count (set/intersection (g2 "aq") (g2 "bn")))
 
   (part-2-greedy test-lines) ; 4
 ; "co,de,ka,ta"
