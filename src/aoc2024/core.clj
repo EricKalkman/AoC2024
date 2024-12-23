@@ -24,6 +24,7 @@
             [aoc2024.day20 :as day20]
             [aoc2024.day21 :as day21]
             [aoc2024.day22 :as day22]
+            [aoc2024.day23 :as day23]
             ))
 
 (defn do-file-lines [fname f]
@@ -36,7 +37,8 @@
   (println (format "DAY %02d" day))
   (println "Part 1: " (time (p1)))
   (println "Part 2: " (time (p2)))
-  (println ""))
+  (println "")
+  (System/gc))
 
 (defn line-thunks [day p1 p2]
   (if-let [lines (do-file-lines (format "inputs/day%02d.inp" day) #(into [] %))]
@@ -74,5 +76,6 @@
   (some->> (line-thunks 20 day20/part-1 day20/part-2) (apply do-part 20))
   (some->> (line-thunks 21 day21/part-1 day21/part-2) (apply do-part 21))
   (some->> (line-thunks 22 day22/part-1 day22/part-2) (apply do-part 22))
+  (some->> (line-thunks 23 day23/part-1 day23/part-2) (apply do-part 23))
   (shutdown-agents)
   )
