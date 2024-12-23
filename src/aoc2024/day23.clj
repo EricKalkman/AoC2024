@@ -49,7 +49,7 @@
 
 ;; *sigh* I kinda figured were were heading for the maximum clique
 
-(defn bron-korbosch-helper
+(defn bron-kerbosch-helper
   "Helper function to return all maximal cliques of g. Initialize with
   (bron-korbosch-helper g #{} (set (keys g)) #{})."
   [g clique-candidate possible-extensions excluded]
@@ -61,7 +61,7 @@
       (if-let [v (first possible-extensions)]
         (recur (into cliques
                      ; find all maximal cliques containing v
-                     (bron-korbosch-helper
+                     (bron-kerbosch-helper
                        g
                        ; add v to current candidate clique
                        (conj clique-candidate v)
@@ -73,15 +73,15 @@
                (conj excluded v))
         cliques))))
 
-(defn bron-korbosch
+(defn bron-kerbosch
   "Returns a vector of all maximal (not maximum) cliques"
   [g]
-  (bron-korbosch-helper g #{} (set (keys g)) #{}))
+  (bron-kerbosch-helper g #{} (set (keys g)) #{}))
 
 (defn part-2 [lines]
   (->> lines
        parse-graph
-       bron-korbosch
+       bron-kerbosch
        (apply max-key count)
        sort
        (str/join ",")
@@ -133,7 +133,7 @@
   (def inp-lines (str/split-lines inp))
 
   (def g (parse-graph test-lines))
-  (count (bron-korbosch g)) ; 36
+  (count (bron-kerbosch g)) ; 36
   (count g) ; 16
 
   (count (clique-3 g)) ; 12
