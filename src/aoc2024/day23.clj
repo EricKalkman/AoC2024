@@ -51,8 +51,8 @@
     (loop [cliques []
            p possible-extensions]
       (if-let [v (first p)]
-        ; find all maximal cliques containing v
         (recur (into cliques
+                     ; find all maximal cliques containing v
                      (bron-korbosch-helper
                        g
                        ; add v to current candidate clique
