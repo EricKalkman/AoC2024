@@ -50,31 +50,32 @@
 ;; *sigh* I kinda figured were were heading for the maximum clique
 
 (defn bron-kerbosch-helper
-  "Helper function to return all maximal cliques of g. Initialize with
+  "Helper function to return the maximum clique of g. Initialize with
   (bron-korbosch-helper g #{} (set (keys g)) #{})."
   [g clique-candidate possible-extensions excluded]
   (if (and (empty? possible-extensions) (empty? excluded))
-    [clique-candidate]
-    (loop [cliques []
+    clique-candidate
+    (loop [max-clique #{}
            possible-extensions possible-extensions
            excluded excluded]
       (if-let [v (first possible-extensions)]
-        (recur (into cliques
-                     ; find all maximal cliques containing v
-                     (bron-kerbosch-helper
-                       g
-                       ; add v to current candidate clique
-                       (conj clique-candidate v)
-                       ; narrow possible extensions to only neighbors of v
-                       (set/intersection possible-extensions (g v))
-                       ; narrow possible exclusions only to neighbors of v
-                       (set/intersection excluded (g v))))
+        (recur (max-key count
+                        max-clique
+                        ; find all maximal cliques containing v
+                        (bron-kerbosch-helper
+                          g
+                          ; add v to current candidate clique
+                          (conj clique-candidate v)
+                          ; narrow possible extensions to only neighbors of v
+                          (set/intersection possible-extensions (g v))
+                          ; narrow possible exclusions only to neighbors of v
+                          (set/intersection excluded (g v))))
                (disj possible-extensions v)
                (conj excluded v))
-        cliques))))
+        max-clique))))
 
 (defn bron-kerbosch
-  "Returns a vector of all maximal (not maximum) cliques"
+  "Returns the maximum clique of g"
   [g]
   (bron-kerbosch-helper g #{} (set (keys g)) #{}))
 
@@ -82,10 +83,9 @@
   (->> lines
        parse-graph
        bron-kerbosch
-       (apply max-key count)
+       ;(apply max-key count)
        sort
-       (str/join ",")
-       ))
+       (str/join ",")))
 
 ;; Everything below here was the result of relaxing assumpations about the problem.
 ;; They are not correct, but they did end up giving the correct answer for my input.
@@ -122,8 +122,7 @@
          (map #(find-a-maximal-clique g % vs))
          (apply max-key count)
          sort
-         (str/join ",")
-         )))
+         (str/join ","))))
 
 (comment
   (def test-inp (slurp "inputs/day23.test"))
@@ -141,14 +140,11 @@
 
   (def g2 (parse-graph inp-lines))
   (every? #(= 13 (count %)) (vals g2)) ; true ; huh
-  (require '[aoc2024.searches :as search])
-  (count (:prevs (search/bfs g2 "aq" (constantly false))))
 
   (part-1 test-lines) ; 7
   (part-1 inp-lines) ; 1411
   (part-2 test-lines) ; "co,de,ka,ta"
   (time (part-2 inp-lines)) ; "aq,bn,ch,dt,gu,ow,pk,qy,tv,us,yx,zg,zu"
-  (count (set/intersection (g2 "aq") (g2 "bn")))
 
   (part-2-greedy test-lines) ; 4
 ; "co,de,ka,ta"
