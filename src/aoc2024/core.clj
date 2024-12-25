@@ -26,7 +26,7 @@
             [aoc2024.day22 :as day22]
             [aoc2024.day23 :as day23]
             [aoc2024.day24 :as day24]
-            ))
+            [aoc2024.day25 :as day25]))
 
 (defn do-file-lines [fname f]
   (if (.exists (io/file fname))
@@ -79,5 +79,6 @@
   (some->> (line-thunks 22 day22/part-1 day22/part-2) (apply do-part 22))
   (some->> (line-thunks 23 day23/part-1 day23/part-2) (apply do-part 23))
   (some->> (str-thunks 24 day24/part-1 day24/part-2) (apply do-part 24))
+  (some->> (str-thunks 25 day25/part-1 (constantly "Merry Christmas!")) (apply do-part 25))
   (shutdown-agents)
   )
