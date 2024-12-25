@@ -34,6 +34,7 @@
                  (visit prevs cur))))
       {:prevs (persistent! prevs) :visit visit}))))
 
+
 (defn update! [mt k f]
   (let [cur (mt k)]
     (assoc! mt k (f cur))))
@@ -76,8 +77,43 @@
              :cost
              (and lasts (second (first lasts)))))))
 
+(defn- dfs-helper [neighfunc src stop? visit visiting? prevs]
+  (if (stop? src)
+    [(visit prevs src) visiting? prevs]
+    (let [neighs (neighfunc src)]
+      (fn []
+        (if-let [res
+                 (->> neighs
+                      (reduce
+                        (fn [[visit visiting? prevs] neigh]
+                          (cond
+                            (visiting? neigh) (reduced nil) ; cycle detected
+                            (prevs neigh) [visit visiting? prevs]
+                            :else
+                            (or (trampoline dfs-helper neighfunc neigh stop?
+                                            visit visiting? (assoc prevs neigh src))
+                                (reduced nil))))
+                        [visit (conj visiting? src) prevs]))]
+          (let [[visit visiting? prevs] res]
+            [(visit prevs src) (disj visiting? src) prevs])
+          nil)))))
+
+(defn dfs
+  ([neighfunc srcs stop?] (dfs neighfunc srcs stop? nil-visit))
+  ([neighfunc srcs stop? visit]
+   (if-let [res (->> srcs
+                     (reduce
+                       (fn [[visit visiting? prevs] src]
+                         (or (trampoline dfs-helper neighfunc src stop? visit visiting? prevs)
+                             (reduced nil)))
+                       [visit #{} {}]))]
+     res
+     nil)))
+
 (comment
-  (def g {:a #{:b :c} :b #{:d :e} :c #{:f :g}})
+  (def g {:a #{:e :b :c} :b #{:d :e} :c #{:f :g}})
+
+  ((first (dfs g [:a] (constantly false) (conj-visit [])))) ; [:e :g :f :c :d :b :a]
 
   (def g2 {:a [[:b 1] [:d 10]] :b [[:c 1]] :c [[:d 1]] :d [[:e 1]]})
 

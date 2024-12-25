@@ -54,13 +54,13 @@
   (bron-korbosch-helper g #{} (set (keys g)) #{})."
   [g clique-candidate possible-extensions excluded]
   (if (and (empty? possible-extensions) (empty? excluded))
-    clique-candidate
-    (loop [max-clique #{}
+    [clique-candidate]
+    (loop [cliques []
            possible-extensions possible-extensions
            excluded excluded]
       (if-let [v (first possible-extensions)]
-        (recur (max-key count
-                        max-clique
+        (recur (into 
+                        cliques
                         ; find all maximal cliques containing v
                         (bron-kerbosch-helper
                           g
@@ -72,7 +72,7 @@
                           (set/intersection excluded (g v))))
                (disj possible-extensions v)
                (conj excluded v))
-        max-clique))))
+        cliques))))
 
 (defn bron-kerbosch
   "Returns the maximum clique of g"
@@ -83,7 +83,7 @@
   (->> lines
        parse-graph
        bron-kerbosch
-       ;(apply max-key count)
+       (apply max-key count)
        sort
        (str/join ",")))
 
@@ -140,6 +140,20 @@
 
   (def g2 (parse-graph inp-lines))
   (every? #(= 13 (count %)) (vals g2)) ; true ; huh
+
+  (update-vals (->> g2 bron-kerbosch (group-by count)) count) ; {12 78, 2 299, 13 1}
+
+  (def clique (->> g2 bron-kerbosch (apply max-key count)))
+  (def outer (into #{} (mapcat #(set/difference (g2 %) clique) clique)))
+  (map #(count (set/difference (g2 %) clique)) outer)
+
+  (- 3380 (+ (/ (* 13 12) 2) (/ (* 39 11 10) 2) (* 2 39 11)
+             ))
+
+  (->> (range 2 (quot (- (* 78 2) 13) 2))
+       (filter #(zero? (mod (- (* 78 2) 13) %)))) ; (11 13)
+  (count g2) ; 520
+  (/ (reduce + (map count (vals g2))) 2) ; 3380
 
   (part-1 test-lines) ; 7
   (part-1 inp-lines) ; 1411
