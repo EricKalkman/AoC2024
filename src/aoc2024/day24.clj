@@ -56,6 +56,15 @@
     wires
     gates-in-order))
 
+(defn parse-answer [prefix state]
+  (as-> state $
+       (keys $)
+       (filter #(str/starts-with? % prefix) $)
+       (sort (comp - compare) $)
+       (map state $)
+       (apply str $)
+       (Long/parseLong $ 2)))
+
 (defn part-1 [s]
   (let [{:keys [wires graph gates]}
         (->> s p/string->stringbuf parse-input :result)
@@ -64,17 +73,14 @@
         (->> (search/dfs graph (map :name wires) (constantly false)
                          (search/conj-visit [])))
         order (->> (visit) (filter symbol?) reverse)]
-    (as-> (eval-network (into {} (map (fn [{:keys [name val]}] [name val]))
-                              wires)
-                        gates order)
-      $
-      (filter (fn [[name _]] (str/starts-with? name "z")) $)
-      (sort (comp - compare) $)
-      (vals $)
-      (apply str $)
-      (Long/parseLong $ 2))))
+    (->> (eval-network (into {} (map (fn [{:keys [name val]}] [name val]))
+                             wires)
+                       gates order)
+         (parse-answer "z"))))
 
-(defn test-bit-helper [evaler n x y nz z]
+(defn test-bit-helper
+  "Returns the set of z wires that don't match the expected z value"
+  [evaler n x y nz z]
   (let [start-state
         (into {} (mapcat #(vector [(format "x%02d" %) 0]
                                   [(format "y%02d" %) 0]
@@ -93,7 +99,9 @@
          (into #{} (filter #(str/starts-with? (first %) "z")) $)
          (set/difference $ expected-end-state))))
 
-(defn test-bit [evaler n]
+(defn test-bit
+  "Returns a vector of [n x y unmatching-z's]"
+  [evaler n]
   (loop [x 0
          y 0
          bad []]
@@ -110,13 +118,15 @@
           (recur x (inc y) bad)
           (recur x (inc y) (conj bad [n x y t])))))))
 
-(defn find-bad-bits [evaler]
+(defn find-bad-bits
+  "Returns a map from set of bad z's -> set of bad x/y's"
+  [evaler]
   (loop [n 0
          bad []]
     (if (>= n 45)
       (as-> bad $
-           (group-by #(nth % 3) $)
-           (update-vals $ #(into #{} (map first) %)))
+           (group-by #(nth % 3) $) ; group by the z's that are modified
+           (update-vals $ #(into #{} (map first) %))) ; deduplicate x/y
       (let [t (test-bit evaler n)]
         (recur (inc n) (into bad t))))))
 
@@ -176,6 +186,50 @@
                  results)))
            []))))
 
+(defn random-wire-number [prefix]
+  (let [n (long (rand (bit-shift-left 1 45)))]
+    (loop [tmp n
+          result {}
+          i 0]
+     (if (>= i 45)
+       [n result]
+       (recur (bit-shift-right tmp 1)
+              (assoc result (str prefix (format "%02d" i)) (bit-and 1 tmp))
+              (inc i))))))
+
+(defn gates-swap->evaler [gates wires swap4]
+  (let [new-gates (reduce #(apply build-gates-with-swap %1 %2)
+                           gates
+                           swap4)
+        new-graph (build-graph new-gates)
+        [visit _] (search/dfs new-graph (map :name wires) (constantly false)
+                              (search/conj-visit []))
+        order (->> (visit) (filter symbol?) reverse vec)]
+    #(eval-network % new-gates order)))
+
+(defn test-random [gates wires swap-options]
+  (let [candidates (->> swap-options
+                        all-combinations
+                        (map #(vector (map (fn [[a b]] [(get-in gates [a :out])
+                                                        (get-in gates [b :out])]) %)
+                                      (gates-swap->evaler gates wires %))))]
+    (loop [candidates candidates]
+      (if (== 1 (count candidates))
+        (first (first candidates))
+        (let [[x x-wires] (random-wire-number "x")
+              [y y-wires] (random-wire-number "y")
+              initial-state (merge x-wires y-wires)
+              sum (+ x y)]
+          (println "Sum:" sum (mod sum (bit-shift-left 1 46)))
+          (recur
+            (->> candidates
+                 (filterv (fn [[s runner]]
+                            (let [result (->> (runner initial-state)
+                                              (parse-answer "z"))]
+                              (println result (if (== result sum) "GOOD" "BAD")
+                                       s)
+                              (== result sum)))))))))))
+
 (defn part-2 [s]
   (let [{:keys [wires graph gates inv-graph]}
         (->> s p/string->stringbuf parse-input :result)
@@ -193,13 +247,10 @@
                   (find-bad-gate-pairs wires graph inv-graph
                                       bad-starts
                                       bad-ends gates))))
-         all-combinations
-         (map #(->> %
-                    (mapcat (fn [[a b]] [(get-in gates [a :out])
-                                         (get-in gates [b :out])]))
-                    sort
-                    (str/join ",")))
-         (str/join "\n"))))
+         (test-random gates wires)
+         (apply concat)
+         sort
+         (str/join ","))))
 
 (comment
   (def test-inp (str/trim (slurp "inputs/day24.test0")))
@@ -214,7 +265,10 @@
   (->> (:wires pinp) (map :name) (filter #(str/starts-with? % "y")) count) ; 45
   (->> (:graph pinp) vals (apply concat) (filter #(str/starts-with? % "z")) count) ; 46
 
-  (part-2 inp)
+  (part-2 inp) ; "cph,jqn,kwb,qkf,tgr,z12,z16,z24"
+
+
+  ; back from brute force
 ; ("cph,jqn,qkf,tgr,vjq,wwd,z12,z16"
 ;  "cph,jqn,qkf,tgr,vjq,z12,z16,z24"
 ;  "cph,jqn,kwb,qkf,tgr,wwd,z12,z16"
