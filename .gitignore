@@ -15,3 +15,5 @@ inputs
 .lsp
 .clj-kondo
 chez/run.sh
+ocaml/.ocamlformat
+ocaml/_build

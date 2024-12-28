@@ -1,0 +1,26 @@
+(lang dune 3.17)
+
+(name aoc2024)
+
+(generate_opam_files true)
+
+(source
+ (github erickalkman/aoc2024))
+
+(authors "Eric Kalkman")
+
+(maintainers "Eric Kalkman")
+
+(license GPL-v3)
+
+(documentation https://url/to/documentation)
+
+(package
+ (name aoc2024)
+ (synopsis "Advent of Code 2024")
+ (description "Advent of Code 2024")
+ (depends ocaml)
+ (tags
+  ()))
+
+; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html
