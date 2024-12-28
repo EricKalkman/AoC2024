@@ -5,9 +5,9 @@
 
 ## Usage
 
-`lein run` to run all days using the Clojure code, printing results and timing information.
-
 Inputs are expected in the `inputs/` directory as *.inp files.
+
+`lein run` to run all days using the Clojure code, printing results and timing information.
 
 Running the Scheme code may be a bit more involved due to differences in distributions. To run it,
 `cd` to the `chez` directory and run `run.sh`. The `SCHEME_EXEC` environmental variable
@@ -19,6 +19,8 @@ used to get timing info are specific to Chez Scheme. If you wish to run the code
 Scheme interpreter, you may comment out the import of `chezscheme` in `chez/util.scm`, and then
 modify the `time-exec` macro defined therein. In addition, a `format` function must be available
 to `runner.scm`; all other code should be R6RS-compliant.
+
+To run the OCaml code, `cd` to the `ocaml` directory and run with `dune exec aoc2024`.
 
 ## License
 
