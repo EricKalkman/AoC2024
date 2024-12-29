@@ -6,6 +6,7 @@ let day_fname day =
 let run_day n p1 p2 =
   let fname = day_fname n in
   let d1, d2 = (fun () -> p1 fname), (fun () -> p2 fname) in
+  Printf.printf "Day %02d\n" n;
   let r1 = Util.time_exec d1 in
   Printf.printf "Part 1: %s\n" r1;
   let r2 = Util.time_exec d2 in
