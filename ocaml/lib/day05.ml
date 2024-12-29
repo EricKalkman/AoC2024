@@ -14,9 +14,6 @@ let right_order rules (src, dst) =
   let ( >>= ) = Option.bind in
   Hashtbl.find_opt rules src >>= List.find_opt (( == ) dst) |> Option.is_some
 
-let test_inp = Util.slurp "../inputs/day05.test"
-let real_inp = Util.slurp "../inputs/day05.inp"
-
 let part_1 fname =
   let orderings, updates =
     fname |> Util.slurp |> parse all_inp |> Result.get_ok

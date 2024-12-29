@@ -1,4 +1,25 @@
-type direction = N | NE | E | SE | S | SW | W | NW
+type direction = N | NE | E | SE | S | SW | W | NW [@@deriving ord, show]
+
+let int_of_direction = function
+  | N -> 0
+  | E -> 1
+  | S -> 2
+  | W -> 3
+  | NE -> 4
+  | SE -> 5
+  | SW -> 6
+  | NW -> 7
+
+let direction_of_int = function
+  | 0 -> N
+  | 1 -> E
+  | 2 -> S
+  | 3 -> W
+  | 4 -> NE
+  | 5 -> SE
+  | 6 -> SW
+  | 7 -> NW
+  | _ -> failwith "bad int"
 
 let dirs4 = [ N; E; S; W ]
 let dirs8 = [ N; NE; E; SE; S; SW; W; NW ]
@@ -58,11 +79,12 @@ module type S = sig
   val step : ?n:e -> direction -> t
   val move : ?n:e -> direction -> t -> t
   val dir_of : t -> direction
+  val compare : t -> t -> int
 end
 
 module Make2 (A : Arithmetic) : S with type e := A.t = struct
-  type e = A.t
-  type t = e * e
+  type e = A.t [@@deriving ord]
+  type t = e * e [@@deriving ord]
 
   let add (x1, y1) (x2, y2) = (A.add x1 x2, A.add y1 y2)
   let ( @+ ) = add
@@ -104,3 +126,11 @@ end
 
 module Ints2 = Make2 (AInt)
 module Floats2 = Make2 (Float)
+module Ints2Set = Set.Make (Ints2)
+module Ints2Map = Map.Make (Ints2)
+
+module Heading = struct
+  type t = Ints2.t * direction [@@deriving ord]
+end
+
+module HSet = Set.Make (Heading)

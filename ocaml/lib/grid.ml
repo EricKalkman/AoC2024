@@ -35,8 +35,7 @@ let get { data; height; width } (row, col) =
 
 let set { data; height; width } (row, col) x =
   if contains height width row col then invalid_arg "grid set"
-  else data.((row * width) + col) <- x;
-  { data; height; width }
+  else data.((row * width) + col) <- x
 
 let to_matrix { data; height; width } =
   let res = Array.make_matrix height width data.(0) in
