@@ -4,9 +4,6 @@ let parse_input s =
   Grid.set g start '.';
   (start, g)
 
-let test_inp = Util.slurp "../inputs/day06.test"
-let real_inp = Util.slurp "../inputs/day06.inp"
-
 open Point
 
 let try_move g (c, dir) =
