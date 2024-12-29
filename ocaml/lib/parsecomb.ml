@@ -156,7 +156,7 @@ let parse_int =
 
 let ws = str_of_set " \n\r\t"
 let nl = str_of_set "\n\r"
-let ints_csv = list_of parse_int (chr ',' -| str_of_set " \t")
+let ints_csv = list_of parse_int (chr ',' -| maybe (str_of_set " \t"))
 let spaced_ints = list_of parse_int (str_p (fun c -> Char.equal c ' '))
 
 let any_ints =

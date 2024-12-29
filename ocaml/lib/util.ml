@@ -49,6 +49,25 @@ let count_list lst =
 let get_default ht x default =
   match Hashtbl.find_opt ht x with None -> default | Some y -> y
 
+let ht_update ht k f = Hashtbl.replace ht k (f (Hashtbl.find_opt ht k))
+
+let pairs_to_directed_graph pairs =
+  let result = Hashtbl.create 32 in
+  pairs
+  |> Seq.iter (fun (n1, n2) ->
+      ht_update result n1 (function None -> [ n2 ] | Some vs -> n2 :: vs);
+      (* ensure that n2 shows up as a node in the graph with e.g., a call to keys *)
+      ht_update result n2 (function None -> [] | Some x -> x));
+  result
+
+let pairs_to_undirected_graph pairs =
+  let result = Hashtbl.create 32 in
+  pairs
+  |> Seq.iter (fun (n1, n2) ->
+         ht_update result n1 (function None -> [ n2 ] | Some vs -> n2 :: vs);
+         ht_update result n2 (function None -> [ n1 ] | Some vs -> n1 :: vs));
+  result
+
 let count seq =
   let res = Hashtbl.create 32 in
   Seq.fold_left
@@ -69,3 +88,12 @@ let rec adjacent_pairs s =
       | None -> fun () -> Seq.Nil
       | Some (y, _) -> Seq.cons (x, y) (adjacent_pairs rest))
 
+let rec partition ?pad ~n seq =
+  let pad = Option.value pad ~default:n in
+  let h = seq |> Seq.take n |> List.of_seq in
+  if List.length h < n then Seq.empty
+  else fun () -> Seq.Cons (h, partition ~pad ~n (Seq.drop pad seq))
+
+let coerce_pairs = function
+  | [a; b] -> (a, b)
+  | _ -> failwith "expected pair"
