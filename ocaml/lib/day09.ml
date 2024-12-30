@@ -3,7 +3,6 @@ module Chunk = struct
 end
 
 module ChunkSet = Set.Make (Chunk)
-module ChunkMap = Map.Make (Chunk)
 
 let parse_input s =
   (* this used to use sequence operations... but those are reaaaaally slow in OCaml *)
