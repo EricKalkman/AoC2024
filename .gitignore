@@ -17,3 +17,4 @@ inputs
 chez/run.sh
 ocaml/.ocamlformat
 ocaml/_build
+ocaml/aoc2024.install
