@@ -1,3 +1,5 @@
+open Ops
+
 let time_exec f =
   let t1 = Sys.time () in
   let res = f () in
@@ -14,13 +16,24 @@ let slurp fname =
   close_in ch;
   s
 
-let rec transpose = function
+let rec transpose_list = function
   | [] -> []
   | [] :: _ -> []
   | lst ->
       let firsts = List.map List.hd lst in
-      let rest = transpose (List.map List.tl lst) in
+      let rest = transpose_list (List.map List.tl lst) in
       firsts :: rest
+
+let rec transpose seq =
+  match Seq.uncons seq with
+  | None -> Seq.empty
+  | Some (h, _) ->
+      if Seq.is_empty h then Seq.empty
+      else fun () ->
+        let s2 = Seq.map (Seq.uncons >> Option.get) seq in
+        let firsts = Seq.map fst s2 in
+        let rest = transpose (Seq.map snd s2) in
+        Seq.Cons (firsts, rest)
 
 let sum = Seq.fold_left ( + ) 0
 let prod = Seq.fold_left ( * ) 1
