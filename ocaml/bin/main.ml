@@ -21,3 +21,4 @@ let () =
   run_day 5 Day05.part_1 Day05.part_2;
   run_day 6 Day06.part_1 Day06.part_2;
   run_day 7 Day07.part_1 Day07.part_2;
+  run_day 8 Day08.part_1 Day08.part_2;

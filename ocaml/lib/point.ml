@@ -72,8 +72,8 @@ module type S = sig
   val ( @+ ) : t -> t -> t
   val sub : t -> t -> t
   val ( @- ) : t -> t -> t
-  val scale : t -> e -> t
-  val ( @* ) : t -> e -> t
+  val scale : e -> t -> t
+  val ( @* ) : e -> t -> t
   val inv_scale : t -> e -> t
   val ( @/ ) : t -> e -> t
   val step : ?n:e -> direction -> t
@@ -90,7 +90,7 @@ module Make2 (A : Arithmetic) : S with type e := A.t = struct
   let ( @+ ) = add
   let sub (x1, y1) (x2, y2) = (A.sub x1 x2, A.sub y1 y2)
   let ( @- ) = sub
-  let scale (x, y) k = (A.mul x k, A.mul y k)
+  let scale k (x, y) = (A.mul k x, A.mul k y)
   let ( @* ) = scale
   let inv_scale (x, y) k = (A.div x k, A.div y k)
   let ( @/ ) = inv_scale

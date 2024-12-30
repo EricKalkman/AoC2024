@@ -84,7 +84,7 @@ let all_coords_of_p p { data; width; _ } =
 
 let all_coords_of x = all_coords_of_p (fun y -> x == y)
 
-let trace ?n g dir start =
+let trace_along ?n g dir start =
   let open Point in
   let delta = Ints2.step dir in
   let res =
@@ -96,10 +96,32 @@ let trace ?n g dir start =
   in
   match n with None -> res | Some n -> res |> Seq.take n
 
+let trace_delta ?n g delta start =
+  let open Point in
+  let res =
+    Seq.unfold
+      (fun c ->
+        let c2 = Ints2.(c @+ delta) in
+        if in_bounds g c2 then Some (get g c2, c2) else None)
+      Ints2.(start @- delta)
+  in
+  match n with None -> res | Some n -> res |> Seq.take n
+
 let trace_string ?n g dir start =
-  trace ?n g dir start |> String.of_seq
+  trace_along ?n g dir start |> String.of_seq
 
 let spells_along g s dir start =
   let len = String.length s in
   let traced = trace_string ~n:len g dir start in
   String.equal s traced
+
+let trace_coords ?n g delta start =
+  let open Point in
+  let res =
+    Seq.unfold
+      (fun c ->
+        let c2 = Ints2.(c @+ delta) in
+        if in_bounds g c2 then Some (c2, c2) else None)
+      Ints2.(start @- delta)
+  in
+  match n with None -> res | Some n -> res |> Seq.take n

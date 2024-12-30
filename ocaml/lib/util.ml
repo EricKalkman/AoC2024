@@ -2,7 +2,7 @@ let time_exec f =
   let t1 = Sys.time () in
   let res = f () in
   let t2 = Sys.time () in
-  Printf.printf "Execution time (s): %f\n" (t2 -. t1);
+  Printf.printf "Execution time (ms): %f\n" (1000.0 *. (t2 -. t1));
   res
 
 let fst (a, _) = a
@@ -55,9 +55,11 @@ let pairs_to_directed_graph pairs =
   let result = Hashtbl.create 32 in
   pairs
   |> Seq.iter (fun (n1, n2) ->
-      ht_update result n1 (function None -> [ n2 ] | Some vs -> n2 :: vs);
-      (* ensure that n2 shows up as a node in the graph with e.g., a call to keys *)
-      ht_update result n2 (function None -> [] | Some x -> x));
+         ht_update result n1 (function None -> [ n2 ] | Some vs -> n2 :: vs);
+         (* ensure that n2 shows up as a node in the graph with e.g., a call to keys *)
+         ht_update result n2 (function
+           | None -> []
+           | Some x -> x));
   result
 
 let pairs_to_undirected_graph pairs =
@@ -94,6 +96,37 @@ let rec partition ?pad ~n seq =
   if List.length h < n then Seq.empty
   else fun () -> Seq.Cons (h, partition ~pad ~n (Seq.drop pad seq))
 
-let coerce_pairs = function
-  | [a; b] -> (a, b)
-  | _ -> failwith "expected pair"
+let coerce_pairs = function [ a; b ] -> (a, b) | _ -> failwith "expected pair"
+
+let group_by f seq =
+  let result = Hashtbl.create 32 in
+  Seq.(
+    seq
+    |> iter (fun v ->
+           let k = f v in
+           ht_update result k (function None -> [ v ] | Some vs -> v :: vs)));
+  result
+
+let group_list_by f lst =
+  let result = Hashtbl.create 32 in
+  List.(
+    lst
+    |> iter (fun v ->
+           let k = f v in
+           ht_update result k (function None -> [ v ] | Some vs -> v :: vs)));
+  result
+
+let rec combinations k seq =
+  if k == 1 then seq |> Seq.map (fun x -> [ x ])
+  else
+    match Seq.uncons seq with
+    | None -> Seq.empty
+    | Some (h, t) ->
+        Seq.append
+          (Seq.map (List.cons h) (combinations (k - 1) t))
+          (combinations k t)
+
+let dedup seq =
+  let h = Hashtbl.create 32 in
+  seq |> Seq.iter (fun x -> Hashtbl.replace h x 1);
+  h
