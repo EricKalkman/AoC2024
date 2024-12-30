@@ -56,6 +56,7 @@ module type Arithmetic = sig
   val zero : t
   val of_int : int -> t
   val compare : t -> t -> int
+  val equal : t -> t -> bool
 end
 
 module AInt = struct
@@ -80,11 +81,12 @@ module type S = sig
   val move : ?n:e -> direction -> t -> t
   val dir_of : t -> direction
   val compare : t -> t -> int
+  val equal : t -> t -> bool
 end
 
 module Make2 (A : Arithmetic) : S with type e := A.t = struct
-  type e = A.t [@@deriving ord]
-  type t = e * e [@@deriving ord]
+  type e = A.t [@@deriving ord, eq]
+  type t = e * e [@@deriving ord, eq]
 
   let add (x1, y1) (x2, y2) = (A.add x1 x2, A.add y1 y2)
   let ( @+ ) = add

@@ -1,4 +1,4 @@
 (library
  (name aoclib)
- (preprocess (pps ppx_deriving.show ppx_deriving.ord))
+ (preprocess (pps ppx_deriving.show ppx_deriving.ord ppx_deriving.eq))
  (libraries ))
