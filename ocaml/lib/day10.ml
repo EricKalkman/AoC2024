@@ -8,12 +8,12 @@ let part_1 fname =
   |> List.fold_left
        (fun trails elevation ->
          trails
-         |> List.map (fun trail_frontier ->
-                trail_frontier |> Ints2Set.to_seq
-                |> Seq.concat_map (Ints2.neighbors4 >> List.to_seq)
-                |> Seq.filter (fun c ->
-                       Grid.(in_bounds g c && get g c == elevation))
-                |> Ints2Set.of_seq))
+         |> List.map
+              (Ints2Set.to_seq
+              >> Seq.concat_map (Ints2.neighbors4 >> List.to_seq)
+              >> Seq.filter (fun c ->
+                     Grid.(in_bounds g c && get g c == elevation))
+              >> Ints2Set.of_seq))
        trailheads
   |> List.map Ints2Set.cardinal |> Util.sum_list |> string_of_int
 
@@ -28,10 +28,9 @@ let part_2 fname =
   |> List.fold_left
        (fun trails elevation ->
          trails
-         |> List.map (fun trail_frontier ->
-                trail_frontier
-                |> Seq.concat_map (Ints2.neighbors4 >> List.to_seq)
-                |> Seq.filter (fun c ->
-                       Grid.(in_bounds g c && get g c == elevation))))
+         |> List.map
+              (Seq.concat_map (Ints2.neighbors4 >> List.to_seq)
+              >> Seq.filter (fun c ->
+                     Grid.(in_bounds g c && get g c == elevation))))
        trailheads
   |> List.map Seq.length |> Util.sum_list |> string_of_int
