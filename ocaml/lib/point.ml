@@ -82,6 +82,8 @@ module type S = sig
   val dir_of : t -> direction
   val compare : t -> t -> int
   val equal : t -> t -> bool
+  val neighbors4 : t -> t list
+  val neighbors8 : t -> t list
 end
 
 module Make2 (A : Arithmetic) : S with type e := A.t = struct
@@ -124,6 +126,9 @@ module Make2 (A : Arithmetic) : S with type e := A.t = struct
     | -1, -1 -> NE
     | 0, 0 -> failwith "is zero"
     | _ -> failwith "unreachable"
+
+  let neighbors4 coord = dirs4 |> List.map (fun d -> move d coord)
+  let neighbors8 coord = dirs8 |> List.map (fun d -> move d coord)
 end
 
 module Ints2 = Make2 (AInt)
