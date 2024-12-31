@@ -2,6 +2,7 @@
          (export
            grid make-grid grid?
            grid-height grid-width
+           grid-show
            grid-from-lines
            file->grid
            string->grid
@@ -9,13 +10,19 @@
            in-grid?
            grid-get
            grid-set!
-           coords-of
+           coords-of all-coords-of
 
-           DIRS4 point-move
+           DIRS4 DIRS8 point-move
            dir-flip turn-right turn-left
            neighbors4
            grid-neighbors4
-           point+ point-
+           point+ point- point*
+           dir->point
+
+           trace-coords
+           trace-coords-in-grid
+           trace-grid
+           grid-spells-along?
            )
          (import (rnrs) (util))
 
@@ -25,6 +32,20 @@
       (mutable arr)
       (immutable height)
       (immutable width)))
+
+  (define grid-show
+    (case-lambda
+      [(g) (grid-show g identity)]
+      [(g charify)
+       (define h (grid-height g))
+       (define w (grid-width g))
+       (let loop ([row 0]
+                  [col 0])
+         (cond
+           [(= col w) (newline) (loop (+ row 1) 0)]
+           [(< row h)
+            (display (charify (grid-get g (cons row col))))
+            (loop row (+ 1 col))]))]))
 
   (define make-grid
     (case-lambda
@@ -107,36 +128,70 @@
         [(egal? x (grid-get grid row col)) (cons row col)]
         [else (loop row (+ col 1))])))
 
+  (define (all-coords-of egal? grid x)
+    (define h (grid-height grid))
+    (define w (grid-width grid))
+    (let loop ([row 0]
+               [col 0]
+               [acc '()])
+      (cond
+        [(>= row h) acc]
+        [(>= col w) (loop (+ row 1) 0 acc)]
+        [(egal? x (grid-get grid row col))
+         (loop row (+ col 1) (cons (cons row col) acc))]
+        [else (loop row (+ col 1) acc)])))
 
   (define DIRS4 '(up right down left))
+  (define DIRS8 '(up right down left NE SE SW NW))
   
   (define (dir-flip dir)
     (case dir
       [(up) 'down]
       [(right) 'left]
       [(down) 'up]
-      [(left) 'right]))
+      [(left) 'right]
+      [(NE) 'SW]
+      [(SE) 'NW]
+      [(SW) 'NE]
+      [(NW) 'SE]))
 
   (define (turn-right dir)
     (case dir
       [(up) 'right]
       [(right) 'down]
       [(down) 'left]
-      [(left) 'up]))
+      [(left) 'up]
+      [(NE) 'SE]
+      [(SE) 'SW]
+      [(SW) 'NW]
+      [(NW) 'NE]))
 
   (define (turn-left dir)
     (case dir
       [(up) 'left]
       [(right) 'up]
       [(down) 'right]
-      [(left) 'down]))
+      [(left) 'down]
+      [(NE) 'NW]
+      [(SE) 'NE]
+      [(SW) 'SE]
+      [(NW) 'SW]))
+
+  (define (dir->point dir)
+    (case dir
+      [(up) (cons -1 0)]
+      [(right) (cons 0 1)]
+      [(down) (cons 1 0)]
+      [(left) (cons 0 -1)]
+      [(NE) (cons -1 1)]
+      [(SE) (cons 1 1)]
+      [(SW) (cons 1 -1)]
+      [(NW) (cons -1 -1)]))
 
   (define (point-move dir n coord)
-    (case dir
-      [(up) (cons (- (car coord) n) (cdr coord))]
-      [(down) (cons (+ (car coord) n) (cdr coord))]
-      [(left) (cons (car coord) (- (cdr coord) n))]
-      [(right) (cons (car coord) (+ (cdr coord) n))]))
+    (let* ([d1 (dir->point dir)]
+           [delta (point* n d1)])
+      (point+ coord delta)))
 
   (define (neighbors4 coord)
     (map (λ (dir) (point-move dir 1 coord)) DIRS4))
@@ -149,6 +204,43 @@
     (cons (+ (car a) (car b)) (+ (cdr a) (cdr b))))
   (define (point- a b)
     (cons (- (car a) (car b)) (- (cdr a) (cdr b))))
+  (define (point* k a)
+    (cons (* k (car a)) (* k (cdr a))))
+
+  (define (trace-coords dir start n)
+    (if (<= n 0)
+      '()
+      (cons start
+            (trace-coords dir (point-move dir 1 start) (- n 1)))))
+
+  (define trace-coords-in-grid
+    (case-lambda
+      [(g dir start)
+       (if (not (in-grid? g start))
+         '()
+         (cons start (trace-coords-in-grid g dir (point-move dir 1 start))))]
+      [(g dir start n)
+       (if (or (<= n 0) (not (in-grid? g start)))
+         '()
+         (cons start (trace-coords-in-grid g dir (point-move dir 1 start) (- n 1))))]))
+
+  (define trace-grid
+    (case-lambda
+      [(g dir start)
+       (if (not (in-grid? g start))
+         '()
+         (cons (grid-get g start)
+               (trace-grid g dir (point-move dir 1 start))))]
+      [(g dir start n)
+       (if (or (<= n 0) (not (in-grid? g start)))
+         '()
+         (cons (grid-get g start)
+               (trace-grid g dir (point-move dir 1 start) (- n 1))))]))
+
+  (define (grid-spells-along? g s dir start)
+    (let ([slist (string->list s)]
+          [trace (trace-grid g dir start (string-length s))])
+      (equal? slist trace)))
 )
 
 #|

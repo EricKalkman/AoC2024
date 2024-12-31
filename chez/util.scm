@@ -19,6 +19,7 @@
                  swap-args
                  rcons
                  vector-fold-left
+                 unfold
                  )
          (import (rnrs)
                  (rnrs r5rs)
@@ -245,4 +246,12 @@
         acc
         (loop (apply f acc (map (λ (v) (vector-ref v idx)) (cons v vs)))
               (+ idx 1)))))
-)
+
+  (define (unfold f seed)
+    (let loop ([acc (list seed)]
+               [seed seed])
+      (if-let ([next (f seed)])
+              (loop (cons (car next) acc)
+                    (cdr next))
+              (reverse acc))))
+  )
