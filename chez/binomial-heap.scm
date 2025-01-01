@@ -54,10 +54,10 @@
 
   (define (merge-trees p q)
     ; pure function, preserving min heap property
-    ; always returns a new tree
+    ; may return p or q directly
     (assert (or (not p) (not q) (= (bin-tree-order p) (bin-tree-order q))))
     (cond
-      [(not (and p q)) (copy-tree (or p q))]
+      [(not (and p q)) (or p q)]
       [(<= (bin-tree-key p) (bin-tree-key q))
        (make-bin-tree (bin-tree-x p)
                       (bin-tree-key p)
