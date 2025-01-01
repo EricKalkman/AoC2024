@@ -1,5 +1,5 @@
 (library (day11)
-         (export part-1 part-2)
+         (export part-1 part-2 split-int)
          (import (rnrs)
                  (util))
 
@@ -18,15 +18,20 @@
          (mut-> h (hashtable-update! k (λ (n) (+ n to-add)) 0)))
       h v))
 
+  (define (split-int n)
+    (define num-digits (exact (ceiling (log (+ n 1) 10))))
+    (if (even? num-digits)
+      (let ([divisor (exact (round (expt 10.0 (/ num-digits 2.0))))])
+        (let-values ([(upper lower) (div-and-mod n divisor)])
+          (list upper lower)))
+      #f))
+
   (define (transition stone)
-    (cond
-      [(zero? stone) (list 1)]
-      [(even? (string-length (number->string stone)))
-       (let* ([s (number->string stone)]
-              [len (string-length s)]
-              [pivot (div len 2)])
-         (map string->number (list (substring s 0 pivot) (substring s pivot len))))]
-      [else (list (* 2024 stone))]))
+    (if (zero? stone)
+      (list 1)
+      (if-let ([split (split-int stone)])
+        split
+        (list (* 2024 stone)))))
 
   (define (blink stones)
     (let-values ([(stones counts) (hashtable-entries stones)])
