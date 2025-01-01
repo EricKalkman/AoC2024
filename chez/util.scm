@@ -20,6 +20,7 @@
                  rcons
                  vector-fold-left
                  unfold
+                 string-trim-right
                  )
          (import (rnrs)
                  (rnrs r5rs)
@@ -254,4 +255,11 @@
               (loop (cons (car next) acc)
                     (cdr next))
               (reverse acc))))
+
+  (define (string-trim-right s)
+    (let loop ([idx (- (string-length s) 1)])
+      (cond
+        [(< idx 0) ""]
+        [(char=? #\newline (string-ref s idx)) (loop (- idx 1))]
+        [else (substring s 0 (+ idx 1))])))
   )

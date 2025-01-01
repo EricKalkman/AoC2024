@@ -15,6 +15,8 @@
                  parse-result-val parse-result-rest parse-result-err?
                  success failure success? failure?
 
+                 parse
+
                  eof
 
                  any-char char str charp charp+ charset charset+
@@ -56,8 +58,12 @@
       (error 'parse-result-unwrap "Tried to unwrap failed parse result"))
     (parse-result-val res))
 
+
   (define (make-string-buffer s) (%make-string-buffer s 0))
   (define (string-buffer-length buf) (string-length (string-buffer-str buf)))
+
+  (define (parse p s)
+    (->> (make-string-buffer s) (p)))
 
   (define (string-buffer-eof? buf)
     (unless (string-buffer? buf)
