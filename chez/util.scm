@@ -21,6 +21,7 @@
                  vector-fold-left
                  unfold
                  string-trim-right
+                 dedup
                  )
          (import (rnrs)
                  (rnrs r5rs)
@@ -267,4 +268,10 @@
         [(< idx 0) ""]
         [(char=? #\newline (string-ref s idx)) (loop (- idx 1))]
         [else (substring s 0 (+ idx 1))])))
+
+  (define (dedup lst)
+    (->> lst
+         (fold-left (λ (ht x) (mut-> ht (hashtable-set! x #t)))
+                    (make-hashtable equal-hash equal? 32))
+         (hashtable-keys)))
   )
