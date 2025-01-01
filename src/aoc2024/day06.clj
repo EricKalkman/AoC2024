@@ -11,9 +11,9 @@
 
 (defn nodes-visited [grid start]
   (loop [node [start :up]
-         visited? #{start}]
+         visited? {start :up}]
     (if-let [neigh (neighbor grid node)]
-      (recur neigh (conj visited? (first neigh)))
+      (recur neigh (update visited? (first neigh) #(or % (second neigh))))
       visited?)))
 
 (defn part-1 [lines]
@@ -21,16 +21,6 @@
         start (g/coords-of grid \^)]
     (->> (nodes-visited grid start)
          count)))
-
-;(defn next-turn [grid [coord dir]]
-;  (let [next-coord
-;        (->> (iterate #(g/move dir 1 %) coord)
-;             (drop-while #(and (g/in-grid? grid %)
-;                               (not= \# (g/grid-get grid %))))
-;             first)]
-;    (and (g/in-grid? grid next-coord)
-;         [(g/move dir -1 next-coord) (g/turn-right dir)])))
-
 
 (defn next-turn [grid [coord dir]]
   (loop [coord (g/move dir 1 coord)]
@@ -41,8 +31,8 @@
       nil)))
 
 (defn in-cycle? [grid start]
-  (loop [node [start :up]
-         visited? #{[start :up]}]
+  (loop [node start
+         visited? #{start}]
     (if-let [neigh (next-turn grid node)]
       (if (visited? neigh)
         true
@@ -53,9 +43,12 @@
   (let [grid (g/parse-grid (map vec lines))
         start (g/coords-of grid \^)
         visited? (nodes-visited grid start)]
-    (->> (disj visited? start)
+    (->> (dissoc visited? start)
+         keys
          ; hehehe
-         (pmap #(in-cycle? (g/grid-set grid % \#) start))
+         (pmap #(let [dir (visited? %)
+                      start (g/move dir -1 %)]
+                  (in-cycle? (g/grid-set grid % \#) [start dir])))
          (filter identity)
          count)))
 
