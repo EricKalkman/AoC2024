@@ -12,7 +12,7 @@
                  file->string
                  string->lines
                  acons
-                 map* filter-map
+                 map* filter-map mapcat
                  count
                  assv-get
                  vector-count
@@ -212,6 +212,11 @@
       (if-let ([x (f (car lst))])
         (cons x (filter-map f (cdr lst)))
         (filter-map f (cdr lst)))))
+
+  (define (mapcat f lst)
+    (if (null? lst)
+      '()
+      (append (f (car lst)) (mapcat f (cdr lst)))))
 
   (define (count p lst)
     (let loop ([lst lst]
