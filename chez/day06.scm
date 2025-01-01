@@ -17,7 +17,7 @@
     (let loop ([node (cons start 'up)]
                [visited? (mut-> (make-hashtable equal-hash equal?) (hashtable-set! start #t))])
       (if-let ([neigh (neighbor grid node)])
-        (loop neigh (mut-> visited? (hashtable-set! (car neigh) #t)))
+        (loop neigh (mut-> visited? (hashtable-update! (car neigh) identity (cdr neigh))))
         visited?)))
 
   (define (part-1 s)
@@ -36,9 +36,9 @@
         [else (loop (point-move dir 1 coord))])))
 
   (define (in-cycle? grid start)
-    (let loop ([node (cons start 'up)]
+    (let loop ([node start]
                [visited? (mut-> (make-hashtable equal-hash equal?)
-                                (hashtable-set! (cons start 'up) #t))])
+                                (hashtable-set! start #t))])
       (if-let ([neigh (next-turn grid node)])
         (if (hashtable-ref visited? neigh #f)
           neigh
@@ -55,7 +55,9 @@
          (vector-count
            (λ (obst-pos)
               (grid-set! grid obst-pos #\#)
-              (let ([res (in-cycle? grid start)])
+              (let* ([dir (hashtable-ref visited? obst-pos #f)]
+                     [start (point-move dir -1 obst-pos)]
+                     [res (in-cycle? grid (cons start dir))])
                 (grid-set! grid obst-pos #\.)
                 res)))))
 )
