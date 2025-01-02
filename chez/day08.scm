@@ -34,7 +34,7 @@
   (define (coords-in-line g a b)
     (define delta (g:point- b a))
     (define denom (reduction-factor delta))
-    (define scaled-delta (list (/ (g:point-row delta) denom) (/ (g:point-col delta) denom)))
+    (define scaled-delta (g:make-point (/ (g:point-row delta) denom) (/ (g:point-col delta) denom)))
     (let loop ([coord a]
                [res '()])
       (if (g:in-grid? g coord)
