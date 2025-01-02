@@ -1,5 +1,5 @@
 (library (day08)
-         (export part-1 part-2)
+         (export part-1 part-2 find-antennae group-antennae coords-in-line)
          (import (rnrs)
                  (util)
                  (prefix (grids) g:))
@@ -14,7 +14,7 @@
       [(>= row h) res]
       [(>= col w) (loop (+ row 1) 0 res)]
       [(not (char=? #\. (g:grid-get g row col)))
-       (loop row (+ 1 col) (cons (cons (cons row col) (g:grid-get g row col))
+       (loop row (+ 1 col) (cons (cons (g:make-point row col) (g:grid-get g row col))
                                  res))]
       [else (loop row (+ 1 col) res)])))
 
@@ -27,14 +27,14 @@
     res)
 
   (define (reduction-factor delta)
-    (if (or (zero? (car delta)) (zero? (cdr delta)))
-      (argmax abs (car delta) (cdr delta))
-      (gcd (abs (car delta)) (abs (cdr delta)))))
+    (if (or (zero? (g:point-row delta)) (zero? (g:point-col delta)))
+      (argmax abs (g:point-row delta) (g:point-col delta))
+      (gcd (abs (g:point-row delta)) (abs (g:point-col delta)))))
 
   (define (coords-in-line g a b)
     (define delta (g:point- b a))
     (define denom (reduction-factor delta))
-    (define scaled-delta (cons (/ (car delta) denom) (/ (cdr delta) denom)))
+    (define scaled-delta (list (/ (g:point-row delta) denom) (/ (g:point-col delta) denom)))
     (let loop ([coord a]
                [res '()])
       (if (g:in-grid? g coord)
@@ -91,7 +91,7 @@
 )
 
 #|
-(import (rnrs) (util) (parsecomb) (grids) (day08))
+(import (rnrs) (grids) (util) (day08))
 
 (define test-inp "..........
 ..........
@@ -121,17 +121,17 @@
 (define g2 (string->grid test-inp2))
 
 (define freqs (->> g1 (find-antennae) (group-antennae)))
-(hashtable-values freqs)
+;(hashtable-values freqs)
 (define as (hashtable-ref freqs #\a #f))
 (define a (car as))
 (define b (cadr as))
 (coords-in-line g1 a b)
 
-(part-1 g1) ; 2
-(part-1 g2) ; 14
-(part-1 (file->grid "../inputs/day08.inp")) ; 329
+(part-1 test-inp) ; 2
+(part-1 test-inp2) ; 14
+(part-1 (file->string "../inputs/day08.inp")) ; 329
 
-(part-2 g1) ; 5
-(part-2 g2) ; 34
+(part-2 test-inp) ; 5
+(part-2 test-inp2) ; 34
 (part-2 (file->grid "../inputs/day08.inp")) ; 1190
 |#

@@ -9,7 +9,7 @@
                  (prefix (parsecomb) p:))
 
   (define coord (->> (p:seq p:parse-int (p:skip (p:char #\,)) p:parse-int)
-                     (p:pmap (λ (lst) (apply cons lst)))))
+                     (p:pmap (λ (lst) (apply g:make-point lst)))))
   (define parse-input (p:list-of coord p:nl))
 
   (define (trace-path dst src prevs)
@@ -26,8 +26,8 @@
     (define res
       (search:bfs (λ (cur)
                      (->> (g:neighbors4 cur)
-                          (filter (λ (n) (and (<= 0 (car n) (- w 1))
-                                              (<= 0 (cdr n) (- h 1))
+                          (filter (λ (n) (and (<= 0 (g:point-row n) (- w 1))
+                                              (<= 0 (g:point-col n) (- h 1))
                                               (not (hashtable-ref coords n #f)))))))
                   src
                   (λ (cur) (equal? cur dst))))
@@ -51,7 +51,7 @@
         (parse-input)
         (p:parse-result-unwrap)
         (take-set n)
-        (find-path w h (cons 0 0) (cons (- w 1) (- h 1)))
+        (find-path w h (g:make-point 0 0) (g:make-point (- w 1) (- h 1)))
         (length)))
 
   (define part-1 (partial part-1-with-pars 71 71 1024))
@@ -67,9 +67,10 @@
 
   (define (part-2-with-pars w h s)
     (let ([coords (-> s (p:make-string-buffer) (parse-input) (p:parse-result-unwrap))])
-      (as-> (binary-search coords w h (cons 0 0) (cons (- w 1) (- h 1)) 0 (length coords)) $
+      (as-> (binary-search coords w h (g:make-point 0 0)
+                           (g:make-point (- w 1) (- h 1)) 0 (length coords)) $
           (list-ref coords (- $ 1))
-          (string-append (number->string (car $)) "," (number->string (cdr $))))))
+          (string-append (number->string (g:point-row $)) "," (number->string (g:point-col $))))))
 
   (define part-2 (partial part-2-with-pars 71 71))
 

@@ -12,6 +12,8 @@
            grid-set!
            coords-of all-coords-of
 
+           make-point point-row point-col
+
            DIRS4 DIRS8 point-move
            dir-flip turn-right turn-left
            neighbors4
@@ -33,6 +35,10 @@
       (immutable height)
       (immutable width)))
 
+  (define make-point list)
+  (define point-row car)
+  (define point-col cadr)
+
   (define grid-show
     (case-lambda
       [(g) (grid-show g identity)]
@@ -44,7 +50,7 @@
          (cond
            [(= col w) (newline) (loop (+ row 1) 0)]
            [(< row h)
-            (display (charify (grid-get g (cons row col))))
+            (display (charify (grid-get g (make-point row col))))
             (loop row (+ 1 col))]))]))
 
   (define make-grid
@@ -100,19 +106,19 @@
 
   (define in-grid?
     (case-lambda
-      ([g coord] (in-grid? g (car coord) (cdr coord)))
+      ([g coord] (in-grid? g (point-row coord) (point-col coord)))
       ([g row col] (and (<= 0 row (- (grid-height g) 1))
                         (<= 0 col (-  (grid-width g) 1))))))
 
   (define grid-get
     (case-lambda
-      ([g coord] (grid-get g (car coord) (cdr coord)))
+      ([g coord] (grid-get g (point-row coord) (point-col coord)))
       ([g row col] (vector-ref (grid-arr g)
                                (+ col (* row (grid-width g)))))))
 
   (define grid-set!
     (case-lambda
-      ([g coord x] (grid-set! g (car coord) (cdr coord) x))
+      ([g coord x] (grid-set! g (point-row coord) (point-col coord) x))
       ([g row col x] (vector-set! (grid-arr g)
                                   (+ col (* row (grid-width g)))
                                   x))))
@@ -125,7 +131,7 @@
       (cond
         [(>= row h) #f]
         [(>= col w) (loop (+ row 1) 0)]
-        [(egal? x (grid-get grid row col)) (cons row col)]
+        [(egal? x (grid-get grid row col)) (make-point row col)]
         [else (loop row (+ col 1))])))
 
   (define (all-coords-of egal? grid x)
@@ -138,7 +144,7 @@
         [(>= row h) acc]
         [(>= col w) (loop (+ row 1) 0 acc)]
         [(egal? x (grid-get grid row col))
-         (loop row (+ col 1) (cons (cons row col) acc))]
+         (loop row (+ col 1) (cons (make-point row col) acc))]
         [else (loop row (+ col 1) acc)])))
 
   (define DIRS4 '(up right down left))
@@ -179,14 +185,14 @@
 
   (define (dir->point dir)
     (case dir
-      [(up) (cons -1 0)]
-      [(right) (cons 0 1)]
-      [(down) (cons 1 0)]
-      [(left) (cons 0 -1)]
-      [(NE) (cons -1 1)]
-      [(SE) (cons 1 1)]
-      [(SW) (cons 1 -1)]
-      [(NW) (cons -1 -1)]))
+      [(up) (make-point -1 0)]
+      [(right) (make-point 0 1)]
+      [(down) (make-point 1 0)]
+      [(left) (make-point 0 -1)]
+      [(NE) (make-point -1 1)]
+      [(SE) (make-point 1 1)]
+      [(SW) (make-point 1 -1)]
+      [(NW) (make-point -1 -1)]))
 
   (define (point-move dir n coord)
     (let* ([d1 (dir->point dir)]
@@ -201,11 +207,11 @@
          (filter (λ (c) (in-grid? g c)))))
 
   (define (point+ a b)
-    (cons (+ (car a) (car b)) (+ (cdr a) (cdr b))))
+    (make-point (+ (point-row a) (point-row b)) (+ (point-col a) (point-col b))))
   (define (point- a b)
-    (cons (- (car a) (car b)) (- (cdr a) (cdr b))))
+    (make-point (- (point-row a) (point-row b)) (- (point-col a) (point-col b))))
   (define (point* k a)
-    (cons (* k (car a)) (* k (cdr a))))
+    (make-point (* k (point-row a)) (* k (point-col a))))
 
   (define (trace-coords dir start n)
     (if (<= n 0)
