@@ -35,9 +35,9 @@
       (immutable height)
       (immutable width)))
 
-  (define make-point list)
+  (define make-point cons)
   (define point-row car)
-  (define point-col cadr)
+  (define point-col cdr)
 
   (define grid-show
     (case-lambda
