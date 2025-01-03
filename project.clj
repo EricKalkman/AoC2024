@@ -1,4 +1,4 @@
-(defproject aoc2024 "0.1.0-SNAPSHOT"
+(defproject aoc2024 "0.1.1-SNAPSHOT"
   :description "Advent of Code 2024"
   :license {:name "GPL-3.0"
             :url "https://choosealicense.com/licenses/gpl-3.0"
@@ -7,7 +7,8 @@
             :key "gpl-3.0"}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/math.numeric-tower "0.1.0"]
-                 [org.clojure/data.priority-map "1.2.0"]]
+                 [org.clojure/data.priority-map "1.2.0"]
+                 [structural "0.2.0-SNAPSHOT"]] ; typehinting-macros
   :main ^:skip-aot aoc2024.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
