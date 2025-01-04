@@ -1,15 +1,17 @@
 (ns aoc2024.day06
   (:require [clojure.string :as str]
-            [aoc2024.grids :as g]))
+            [aoc2024.grids :as g])
+  (:import [aoc2024.grids vec2 Grid]
+           [clojure.lang IPersistentVector]))
 
-(defn neighbor [grid [coord dir]]
-  (let [next-coord (g/move dir 1 coord)]
+(defn neighbor [^Grid grid [^vec2 coord dir]]
+  (let [next-coord ^vec2 (g/move dir 1 coord)]
     (cond
-      (not (g/in-grid? grid next-coord)) nil
-      (= \# (g/grid-get grid next-coord)) [coord (g/turn-right dir)]
+      (not (contains? grid next-coord)) nil
+      (= \# ^char (grid next-coord)) [coord (g/turn-right dir)]
       :else [next-coord dir])))
 
-(defn nodes-visited [grid start]
+(defn nodes-visited [^Grid grid ^vec2 start]
   (loop [node [start :up]
          visited? {start :up}]
     (if-let [neigh (neighbor grid node)]
@@ -17,20 +19,20 @@
       visited?)))
 
 (defn part-1 [lines]
-  (let [grid (g/parse-grid lines)
-        start (g/coords-of grid \^)]
+  (let [grid (g/lines->grid lines)
+        start (g/first-coord-of grid #(= ^char % \^))]
     (->> (nodes-visited grid start)
          count)))
 
-(defn next-turn [grid [coord dir]]
-  (loop [coord (g/move dir 1 coord)]
-    (if-let [^char c (g/grid-get grid coord)]
+(defn next-turn [^Grid grid [^vec2 coord dir]]
+  (loop [coord ^vec2 (g/move dir 1 coord)]
+    (if-let [^char c (grid coord nil)]
       (if (= \# c)
         [(g/move dir -1 coord) (g/turn-right dir)]
         (recur (g/move dir 1 coord)))
       nil)))
 
-(defn in-cycle? [grid start]
+(defn in-cycle? [^Grid grid ^IPersistentVector start]
   (loop [node start
          visited? #{start}]
     (if-let [neigh (next-turn grid node)]
@@ -40,20 +42,17 @@
       false)))
 
 (defn part-2 [lines]
-  (let [grid (g/parse-grid (map vec lines))
-        start (g/coords-of grid \^)
+  (let [grid ^Grid (g/lines->grid lines)
+        start ^vec2 (g/first-coord-of grid #(= \^ ^char %))
         visited? (nodes-visited grid start)]
     (->> (dissoc visited? start)
-         keys
-         ; hehehe
-         (pmap #(let [dir (visited? %)
-                      start (g/move dir -1 %)]
-                  (in-cycle? (g/grid-set grid % \#) [start dir])))
-         (filter identity)
+         (keep #(let [[obst-coord dir] %
+                      start ^vec2 (g/move dir -1 obst-coord)]
+                  (or (in-cycle? (assoc ^Grid grid ^vec2 obst-coord \#) [start dir]) nil)))
          count)))
 
 (comment
-  (part-1 (str/split-lines (slurp "inputs/day06.inp"))) ; 4696
+  (time (part-1 (str/split-lines (slurp "inputs/day06.inp")))) ; 4696
 
   (time (part-2 (str/split-lines (slurp "inputs/day06.inp")))) ; 1443
   )

@@ -10,17 +10,17 @@
   (nth [_ i] (case i 0 row 1 col))
   (nth [_ i default] (case i 0 row 1 col default)))
 
-(defn vec2+ [a b]
+(defn vec2+ [a b] ^vec2
   (s/with-slots [{:fields [row col]} ^vec2 a
                  x1 row y1 col
                  {:fields [row col]} ^vec2 b]
     (->vec2 (+ x1 row) (+ y1 col))))
 
-(defn vec2- [a b]
+(defn vec2- [a b] ^vec2
   (s/with-slots [{:fields [row col]} ^vec2 a
                  x1 row y1 col
                  {:fields [row col]} ^vec2 b]
-    (->vec2 (+ x1 row) (+ y1 col))))
+    (->vec2 (- x1 row) (- y1 col))))
 
 (def DIRS4 [:up :right :down :left])
 (def DIRS8 [:up :right :down :left :NE :SE :SW :NW])
@@ -112,7 +112,7 @@
   (invoke [this k default] (.valAt this k default))
 )
 
-(defn lines->grid [lines]
+(defn lines->grid [lines] ^Grid
   (let [height (count lines)
         width (count (first lines))]
     (assert (every? #(= width (count %)) lines))
