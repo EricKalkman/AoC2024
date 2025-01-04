@@ -1,15 +1,16 @@
 (ns aoc2024.day04
   (:require [clojure.string :as str]
-            [aoc2024.grids :as g]))
+            [aoc2024.grids :as g])
+  (:import [aoc2024.grids vec2 Grid]))
 
 (defn check-word
   "Moves from cur-pos with steps along directions dirs in grid, checking if
    the encountered letters constitute the string word"
-  [dirs word grid cur-pos]
+  [dirs ^String word ^Grid grid ^vec2 cur-pos]
   (->> (range (count word))
-       (map (comp #(g/grid-get grid %)
+       (map (comp #(grid % nil)
                   ; move once in all supplied directions
-                  #(reduce (fn [pos dir] (g/move dir % pos)) cur-pos dirs)))
+                  #(reduce (fn [^vec2 pos dir] (g/move dir % pos)) ^vec2 cur-pos dirs)))
        (= (seq word))))
 
 (def DIAGONAL-CHECKERS
@@ -18,19 +19,23 @@
          [:up :left] [:up :right] [:down :left] [:down :right]]))
 
 (defn part [word checkers lines]
-  (let [grid (g/parse-grid lines)]
-    (->> (g/coords grid)
-         (map #(->> checkers
-                    (filter (fn [checker] (checker word grid %)))
-                    count))
-         (reduce +))))
+  (let [grid (g/lines->grid lines)]
+    (->> grid
+         (g/fold-grid-keys
+           #(->> checkers
+                 (filter (fn [checker] (checker word grid %2)))
+                 count
+                 (+ %1))
+           0))))
 
 (def part-1 (partial part "XMAS" DIAGONAL-CHECKERS))
 
-(defn cross-checker [d1 d2 word grid cur-pos]
-  (let [p1 (reduce (fn [coord dir] (g/move (g/flip-dir dir) (quot (count word) 2) coord))
+(defn cross-checker [d1 d2 ^String word ^Grid grid ^vec2 cur-pos]
+  (let [p1 (reduce (fn [^vec2 coord dir]
+                     (g/move (g/flip-dir dir) (quot (count word) 2) coord))
                    cur-pos d1)
-        p2 (reduce (fn [coord dir] (g/move (g/flip-dir dir) (quot (count word) 2) coord))
+        p2 (reduce (fn [^vec2 coord dir]
+                     (g/move (g/flip-dir dir) (quot (count word) 2) coord))
                    cur-pos d2)]
     (and (check-word d1 word grid p1)
          (check-word d2 word grid p2))))
@@ -43,7 +48,10 @@
 (def part-2 (partial part "MAS" MAS-CHECKERS))
 
 (comment
-  (part-1 (str/split-lines (slurp "inputs/day04.inp"))) ; 2297
+  (def test-lines (str/split-lines (slurp "inputs/day04.test")))
+  (part-1 test-lines) ; 18
 
-  (part-2 (str/split-lines (slurp "inputs/day04.inp"))) ; 1745
+  (time (part-1 (str/split-lines (slurp "inputs/day04.inp")))) ; 2297 ; ~170 ms
+
+  (time (part-2 (str/split-lines (slurp "inputs/day04.inp")))) ; 1745 ;~140 ms
   )
