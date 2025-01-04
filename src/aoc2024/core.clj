@@ -26,7 +26,9 @@
             [aoc2024.day22 :as day22]
             [aoc2024.day23 :as day23]
             [aoc2024.day24 :as day24]
-            [aoc2024.day25 :as day25]))
+            [aoc2024.day25 :as day25]
+            )
+  )
 
 (defn do-file-lines [fname f]
   (if (.exists (io/file fname))
