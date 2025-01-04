@@ -78,6 +78,12 @@
     :SW :NE
     :NW :SE))
 
+(s/sdefn dir-of [^vec2 {:fields [row col]}]
+  (case (compare row 0)
+    -1 (case (compare col 0) -1 :NW 0 :up 1 :NE)
+    0 (case (compare col 0) -1 :left 0 nil 1 :right)
+    1 (case (compare col 0) -1 :SW 0 :down 1 :SE)))
+
 (defn step [dir ^long k] ^vec2
   (s/with-slots [{:fields [row col]} ^vec2 (dir->delta dir)]
     (->vec2 (* k row) (* k col))))

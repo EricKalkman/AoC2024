@@ -130,6 +130,6 @@
 
   (time (part-1 inp-lines)) ; 1365 ~ 140 ms ~ 90 ms
 
-  (time (part-2 inp-lines)) ; 986082 ~ 2210 ms ~ 1560 ms
+  (time (part-2 inp-lines)) ; 986082 ~ 2210 ms ~ 1560 ms ~ 240 ms
 
   )
