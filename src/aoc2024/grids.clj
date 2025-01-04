@@ -1,124 +1,179 @@
 (ns aoc2024.grids
-  (:require [clojure.string :as str]))
+  {:clj-kondo/config '{:linters {:unresolved-symbol {:level :off}}}}
+  (:require [structural.core :as s]
+            [clojure.string :as str])
+  (:import [clojure.lang Counted Indexed Associative IPersistentVector IFn MapEntry
+            Seqable Reversible Keyword]))
 
-(def parse-grid
-  "takes seq of strings (lines), ensures that it's indexable by converting to vec.
-  This would potentially be much faster if flattened into a 1D vector, but for now w/e"
-  vec)
+(defrecord vec2 [^long row ^long col]
+  Indexed
+  (nth [_ i] (case i 0 row 1 col))
+  (nth [_ i default] (case i 0 row 1 col default)))
 
-(defn grid-get
-  "(grid-get g [r c]) gets the value stored in the r'th row and c'th column of grid g
-  (grid-get g r c) is similar"
-  ([g idxs] (get-in g idxs))
-  ([g row col] (get-in g [row col])))
+(defn vec2+ [a b]
+  (s/with-slots [{:fields [row col]} ^vec2 a
+                 x1 row y1 col
+                 {:fields [row col]} ^vec2 b]
+    (->vec2 (+ x1 row) (+ y1 col))))
 
-(def DIRS4
-  "directions in 2D space"
-  [:up :right :down :left])
+(defn vec2- [a b]
+  (s/with-slots [{:fields [row col]} ^vec2 a
+                 x1 row y1 col
+                 {:fields [row col]} ^vec2 b]
+    (->vec2 (+ x1 row) (+ y1 col))))
 
-(def flip-dir
-  "Inverts the supplied direction"
-  {:up :down
-   :right :left
-   :down :up
-   :left :right})
-
-(def turn-right
-  {:up :right
-   :right :down
-   :down :left
-   :left :up})
-
-(def turn-left
-  {:up :left
-   :left :down
-   :down :right
-   :right :up})
-
-(defn dir-of [[row col]]
-  (if (and (zero? row) (zero? col))
-    nil
-    (let [ar (abs row) ac (abs col)]
-      (if (> ar ac)
-        (if (< row 0) :up :down)
-        (if (< col 0) :left :right)))))
-
-(defn get-axis [[row col] dir]
+(def DIRS4 [:up :right :down :left])
+(def DIRS8 [:up :right :down :left :NE :SE :SW :NW])
+(defn dir->delta [^Keyword dir] ^vec2
   (case dir
-    :up row :down row
-    :left col :right col))
+    :up (->vec2 -1 0)
+    :right (->vec2 0 1)
+    :down (->vec2 1 0)
+    :left (->vec2 0 -1)
+    :NE (->vec2 -1 1)
+    :SE (->vec2 1 1)
+    :SW (->vec2 1 -1)
+    :NW (->vec2 -1 -1)))
 
-(defn move
-  "(move dir n [row col]) creates a new point [r' c'] where r' and c' are the coordinates
-  of moving n steps in direction dir (see DIRS4)"
-  [dir n [row col]]
+(defn turn-right [^Keyword dir] ^Keyword
   (case dir
-    :up [(- row n) col]
-    :down [(+ row n) col]
-    :left [row (- col n)]
-    :right [row (+ col n)]))
+    :up :right
+    :right :down
+    :down :left
+    :left :up
+    :NE :SE
+    :SE :SW
+    :SW :NW
+    :NW :NE))
 
-(defn coord+ [[r1 c1] [r2 c2]]
-  [(+ r1 r2) (+ c1 c2)])
+(defn flip-dir [^Keyword dir] ^Keyword
+  (case dir
+    :up :down
+    :right :left
+    :down :up
+    :left :right
+    :NE :SW
+    :SE :NW
+    :SW :NE
+    :NW :SE))
 
-(defn coord- [[r1 c1] [r2 c2]]
-  [(- r1 r2) (- c1 c2)])
+(defn step [dir ^long k] ^vec2
+  (s/with-slots [{:fields [row col]} ^vec2 (dir->delta dir)]
+    (->vec2 (* k row) (* k col))))
 
-(defn width [grid] (count (first grid)))
-(defn height [grid] (count grid))
+(defn move [dir ^long n ^vec2 p] ^vec2
+  (vec2+ p (step dir n)))
 
-(defn coords
-  "Returns a lazy sequence of all indexable coordinates in grid"
-  [grid]
-  (for [row (range (height grid))
-        col (range (width grid))]
-    [row col]))
+(deftype Grid [^IPersistentVector arr ^long height ^long width]
+  Counted
+  (count [_] (.count arr))
+  
+  Associative
+  (containsKey [_ k]
+    (s/with-slots [{:fields [row col]} ^vec2 k]
+      (and (>= row 0) (< row height) (>= col 0) (< col width))))
+  (entryAt [_ k]
+    (s/with-slots [{:fields [row col]} ^vec2 k
+                   idx ^long (+ col (* width row))]
+      (MapEntry. k (.nth arr idx))))
+  (assoc [_ k v]
+    (s/with-slots [{:fields [row col]} ^vec2 k
+                   idx ^long (+ col (* width row))]
+      (Grid. (.assoc arr idx v) height width)))
+  (valAt [_ k]
+    (s/with-slots [{:fields [row col]} ^vec2 k
+                   idx ^long (+ col (* width row))]
+      (.nth arr idx)))
+  (valAt [this k default]
+    (if (.containsKey ^Grid this k)
+      (s/with-slots [{:fields [row col]} ^vec2 k
+                     idx ^long (+ col (* width row))]
+        (.nth arr idx))
+      default))
 
-(defn rows [grid] (range (height grid)))
-(defn columns [grid] (range (width grid)))
+  Seqable
+  (seq [_]
+    (for [row (range height)
+          col (range width)]
+      (let [c ^vec2 (->vec2 row col)
+            idx (+ col (* row width))]
+        (MapEntry. c (.nth arr idx)))))
 
-(defn in-grid?
-  ([g [row col]] (and (<= 0 row (dec (height g)))
-                      (<= 0 col (dec (width g)))))
-  ([g row col] (in-grid? g [row col])))
+  Reversible
+  (rseq [_]
+    (for [row (range (dec height) -1 -1)
+          col (range (dec width) -1 -1)]
+      (let [c ^vec2 (->vec2 row col)
+            idx (+ col (* row width))]
+        (MapEntry. c (.nth arr idx)))))
 
-(defn grid-update
-  "Mutates grid g at coordinates ij with function f and returns a new grid"
-  [g ij f & args] (apply update-in g ij f args))
+  IFn
+  (invoke [this k] (.valAt this k))
+  (invoke [this k default] (.valAt this k default))
+)
 
-(defn grid-set
-  "Sets coordinate ij in grid g to x"
-  ([g ij x] (assoc-in g ij x))
-  ([g row col x] (assoc-in g [row col] x)))
+(defn lines->grid [lines]
+  (let [height (count lines)
+        width (count (first lines))]
+    (assert (every? #(= width (count %)) lines))
+    (Grid. (into [] (apply concat lines)) height width)))
 
-(defn neighbors4
-  "Returns neighbors above, below, to the left of, and to the right of coord ij.
-  If g is supplied, only returns coordinates that are within g."
-  ([ij] (mapv #(move % 1 ij) DIRS4))
-  ([ij g] (into [] (comp (map #(move % 1 ij))
-                         (filter #(in-grid? g %)))
-                DIRS4))
-  ([g row col] (neighbors4 g [row col])))
+(defn height [^Grid g] ^long (.height g))
+(defn width [^Grid g] ^long (.width g))
 
-(defn coords-of
-  "searches grid g for x and returns the 2D coordinate of x"
-  [g x]
-  (if (string? (first g))
-    (->> (map-indexed (fn [rowdx row] (some->> (str/index-of row x) (vector rowdx))) g)
-         (some identity))
-    (->> g
-         (map-indexed (fn [rowdx row]
-                        (->> (map vector (range) row)
-                             (some (fn [[coldx y]] (and (= x y) [rowdx coldx]))))))
-         (some identity))))
+(defn fold-grid-keys [f init ^Grid g]
+  (let [h ^long (height g)
+        w ^long (width g)]
+    (loop [acc init
+           row 0
+           col 0]
+      (cond
+        (>= row h) acc
+        (>= col w) (recur acc (inc row) 0)
+        :else (recur (f acc (->vec2 row col)) row (inc col))))))
 
-(defn perimeter
-  "returns all coordinates on the outside edge of the grid. optionally includes corners"
-  [g & {:keys [corners?] :or {corners? false}}]
-  (concat (for [col (range (width g))] [-1 col])
-          (for [row (range (height g))] [row (width g)])
-          (for [col (range (width g))] [(height g) col])
-          (for [row (range (height g))] [row -1])
-          (if corners?
-            [[-1 -1] [-1 (width g)] [(height g) (width g)] [(height g) -1]]
-            [])))
+(defn fold-grid-values [f init ^Grid g]
+  (let [len ^long (* (height g) (width g))]
+    (loop [acc init
+           idx 0]
+      (if (>= idx len)
+        acc
+        (recur (f acc (.nth ^IPersistentVector (.arr g) idx)) (inc idx))))))
+
+(defn fold-grid-kv [f init ^Grid g]
+  (let [h ^long (height g)
+        w ^long (width g)]
+    (loop [acc init
+           row 0
+           col 0]
+      (cond
+        (>= row h) acc
+        (>= col w) (recur acc (inc row) 0)
+        :else
+        (let [p ^vec2 (->vec2 row col)
+              idx (+ col (* w row))]
+          (recur (f acc p (.nth ^IPersistentVector (.arr g) idx))
+                 row (inc col)))))))
+
+(defn first-coord-of [^Grid g p]
+  (let [len ^long (* (height g) (width g))]
+    (loop [idx 0]
+      (cond
+        (>= idx len) nil
+        (p (.nth ^IPersistentVector (.arr g) idx))
+        (->vec2 (quot idx (width g)) (mod idx (width g)))
+        :else (recur (inc idx))))))
+
+(defn all-coords-of [^Grid g p]
+  (persistent! (fold-grid-kv #(if (p %3) (conj! %1 %2) %1) (transient []) g)))
+
+(comment
+  (def lines (str/split-lines (slurp "inputs/day06.test")))
+  (def real-lines (str/split-lines (slurp "inputs/day06.inp")))
+
+  (let [g ^Grid (lines->grid lines) ]
+    (->> (seq g)
+         (filter #(= \# (second %))))
+    )
+
+  )
