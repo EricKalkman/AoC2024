@@ -8,7 +8,14 @@
 (defrecord vec2 [^long row ^long col]
   Indexed
   (nth [_ i] (case i 0 row 1 col))
-  (nth [_ i default] (case i 0 row 1 col default)))
+  (nth [_ i default] (case i 0 row 1 col default))
+  
+  Comparable
+  (compareTo [_ other]
+    (let [c (compare row (.row ^vec2 other))]
+      (case c
+        0 (compare col (.col ^vec2 other))
+        c))))
 
 (defn vec2+ [a b] ^vec2
   (s/with-slots [{:fields [row col]} ^vec2 a
