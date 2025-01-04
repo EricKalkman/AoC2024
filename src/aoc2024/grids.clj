@@ -35,6 +35,9 @@
     :SW (->vec2 1 -1)
     :NW (->vec2 -1 -1)))
 
+(defn neighbors4 [^vec2 p]
+  (mapv #(vec2+ p (dir->delta %)) DIRS4))
+
 (defn turn-right [^Keyword dir] ^Keyword
   (case dir
     :up :right

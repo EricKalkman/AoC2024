@@ -1,40 +1,40 @@
 (ns aoc2024.day10
   (:require [aoc2024.grids :as g]
             [clojure.string :as str]
-            [aoc2024.searches :as search]))
+            [aoc2024.searches :as search])
+  (:import [aoc2024.grids Grid vec2]))
 
-(defn parse-input [lines]
+(defn parse-input [lines] ^Grid
   ; note: Character/digit returns -1 for non-digit characters, which is fine here
   ; given the monotonicity of edges
-  (mapv #(mapv (fn [c] (Character/digit c 10)) %) lines))
+  (g/lines->grid (map #(map (fn [c] (Character/digit c 10)) %) lines)))
 
-(defn neighbors [grid pos]
-  (let [cur-height (g/grid-get grid pos)]
+(defn neighbors [^Grid grid ^vec2 pos]
+  (let [cur-height ^long (grid pos)]
     (if (= 9 cur-height)
       []
-      (->> (g/neighbors4 pos grid)
-           (filterv #(= (inc cur-height) (g/grid-get grid %)))))))
+      (->> (g/neighbors4 pos)
+           (filterv #(and (contains? grid ^vec2 %)
+                          (== (inc cur-height) ^long (grid ^vec2 %))))))))
 
-(defn trail-score [grid neighfunc pos-indexer start]
+(defn trail-score [^Grid grid neighfunc pos-indexer ^vec2 start]
   (->> (search/bfs neighfunc start (constantly false))
        :prevs
        keys
-       (filter #(= 9 (g/grid-get grid (pos-indexer %))))
+       (filter #(= 9 (grid ^vec2 (pos-indexer ^vec2 %))))
        count))
 
 (defn part-1 [lines]
   (let [grid (parse-input lines)]
-    (->> (g/coords grid)
-         (filter #(zero? (g/grid-get grid %)))
+    (->> (g/all-coords-of grid zero?)
          (map (partial trail-score grid (partial neighbors grid) identity))
          (reduce +))))
 
 (defn part-2 [lines]
   (let [grid (parse-input lines)]
-    (->> (g/coords grid)
-         (filter #(zero? (g/grid-get grid %)))
+    (->> (g/all-coords-of grid zero?)
          (map (comp (partial trail-score grid
-                             (comp #(mapv (fn [neigh] [neigh (gensym)]) %)
+                             (comp #(mapv (fn [^vec2 neigh] [^vec2 neigh (gensym)]) %)
                                    (partial neighbors grid)
                                    first)
                              first)
@@ -44,38 +44,37 @@
 (defn visit-smarter [neighfunc coords]
   (fn
     ([] coords)
-    ([_ cur]
-     (let [cur-count (coords cur)]
+    ([_ ^vec2 cur]
+     (let [cur-count ^long (coords cur)]
        (visit-smarter
          neighfunc
-         (reduce #(update %1 %2 (fn [c] (+ (or c 0) cur-count)))
+         (reduce #(update %1 %2 (fn [c] (+ ^long (or c 0) cur-count)))
                  coords
-                 (neighfunc cur)))))))
+                 ^long (neighfunc cur)))))))
 
 (defn call [f] (f))
 
-(defn trail-rating-smarter [grid start]
+(defn trail-rating-smarter [^Grid grid ^vec2 start]
   (let [counts (->> (search/bfs (partial neighbors grid) start (constantly false)
                                 (visit-smarter (partial neighbors grid) {start 1}))
                     :visit
                     call)]
     (->> counts
          keys
-         (filter #(= 9 (g/grid-get grid %)))
+         (filter #(= 9 (grid ^vec2 %)))
          (map counts)
          (reduce +))))
 
 (defn part-2-smarter [lines]
   (let [grid (parse-input lines)]
-    (->> (g/coords grid)
-         (filter #(zero? (g/grid-get grid %)))
+    (->> (g/all-coords-of grid zero?)
          (map (partial trail-rating-smarter grid))
          (reduce +))))
 
 (comment
-  (part-1 (str/split-lines (slurp "inputs/day10.inp"))) ; 646
-  (part-2 (str/split-lines (slurp "inputs/day10.inp"))) ; 1494
-  (part-2-smarter (str/split-lines (slurp "inputs/day10.inp"))) ; 1494
+  (time (part-1 (str/split-lines (slurp "inputs/day10.inp")))) ; 646
+  (time (part-2 (str/split-lines (slurp "inputs/day10.inp")))) ; 1494
+  (time (part-2-smarter (str/split-lines (slurp "inputs/day10.inp")))) ; 1494
 
   (def test-inp-boojum "9999999999999999999
 9999999998999999999
@@ -96,6 +95,9 @@
 9999999987899999999
 9999999998999999999
 9999999999999999999")
+  (def bj-lines (str/split-lines test-inp-boojum))
+  (def bj-g (parse-input bj-lines))
 
-  (part-2 (str/split-lines test-inp-boojum)) ; 2044
+  (time (part-2 (str/split-lines test-inp-boojum))) ; 2044
+  (time (part-2-smarter (str/split-lines test-inp-boojum))) ; 2044
   )
