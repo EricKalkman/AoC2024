@@ -1,23 +1,29 @@
 (ns aoc2024.day15
+  {:clj-kondo/config '{:linters {:unresolved-symbol {:level :off}}}}
   (:require [aoc2024.grids :as g]
             [clojure.string :as str]
-            [aoc2024.searches :as search]))
+            [structural.core :as s]
+            [aoc2024.searches :as search])
+  (:import [aoc2024.grids vec2]
+           [clojure.lang IPersistentVector]))
 
 (defn parse-input [s]
   (let [[grid-str commands] (str/split s #"\n\n")
-        grid (g/parse-grid (map vec (str/split-lines grid-str)))
-        tiles (group-by #(g/grid-get grid %) (g/coords grid))]
+        grid (g/lines->grid (str/split-lines grid-str))
+        tiles (g/fold-grid-kv #(update %1 %3 (fn [x] (conj (or x #{}) %2))) {} grid)]
     {:width (g/width grid)
      :height (g/height grid)
      :robot (first (tiles \@))
-     :walls (into #{} (tiles \#))
-     :boxes (into #{} (tiles \O))
+     :walls (tiles \#)
+     :boxes (tiles \O)
      :commands (str/join (str/split-lines commands))}))
 
-(defn pushable-blocks [boxes walls coord dir]
-  (let [blocks (->> (iterate #(g/move dir 1 %) coord)
-                    rest
-                    (transduce (take-while boxes) conj))]
+(defn pushable-blocks [boxes walls ^vec2 coord dir]
+  (let [blocks
+        ^IPersistentVector
+        (->> (iterate #(g/move dir 1 %) coord)
+             rest
+             (transduce (take-while boxes) conj))]
     (cond
       (and (empty? blocks) (walls (g/move dir 1 coord))) nil
       (empty? blocks) []
@@ -39,15 +45,15 @@
     (println ""))
   (println ""))
 
-(defn simulate [{:keys [walls boxes robot commands]}]
+(defn simulate [{:keys [walls boxes ^vec2 robot commands]}]
   (loop [robot robot
-         commands commands
+         commands (seq commands)
          boxes boxes]
     (if-let [dir (dirmap (first commands))]
       (do
         ;(print-step robot dir width height walls boxes)
         ;(println)
-        (if-let [pushable (pushable-blocks boxes walls robot dir)]
+        (if-let [pushable (pushable-blocks boxes walls ^vec2 robot dir)]
           (recur (g/move dir 1 robot)
                  (rest commands)
                  (as-> boxes $
@@ -56,7 +62,8 @@
           (recur robot (rest commands) boxes)))
       {:robot robot :boxes boxes})))
 
-(defn gps-coordinate [[row col]] (+ col (* row 100)))
+(s/sdefn gps-coordinate [^vec2 {:fields [row col]}]
+  (+ col (* row 100)))
 
 (defn part-1 [s]
   (->> s
@@ -67,26 +74,26 @@
        (map gps-coordinate)
        (reduce +)))
 
-(defn double-grid-cell [[row col]]
-  [[row (* 2 col)] [row (inc (* 2 col))]])
+(s/sdefn double-grid-cell [^vec2 {:fields [row col]}]
+  [(g/->vec2 row (* 2 col)) (g/->vec2 row (inc (* 2 col)))])
 
 (defn make-coords-to-boxes-map [boxes]
   (->> (for [box boxes
-             coord box]
+             ^vec2 coord box]
          [coord box])
        (into {})))
 
-(defn stretch-map [{:keys [width height walls boxes robot commands]}]
+(defn stretch-map [{:keys [^long width ^long height walls boxes ^vec2 robot commands]}]
   {:width (* 2 width)
    :height height
    :walls (->> walls (mapcat double-grid-cell) (into #{}))
    :box-coords (->> boxes
                     (map double-grid-cell)
                     make-coords-to-boxes-map)
-   :robot [(first robot) (* 2 (second robot))]
+   :robot (g/->vec2 (.row robot) (* 2 (.col robot)))
    :commands commands})
 
-(defn neighbors [box-coords dir cur]
+(defn neighbors [box-coords dir ^vec2 cur]
   (let [next-coord (g/move dir 1 cur)]
     (->> (or (box-coords next-coord) [])
          (concat (box-coords cur)))))
@@ -95,8 +102,8 @@
   (mapv #(g/move dir 1 %) box))
 
 (defn simulate-part-2 [{:keys [walls box-coords robot commands]}]
-  (loop [robot robot
-         commands commands
+  (loop [robot ^vec2 robot
+         commands (seq commands)
          box-coords box-coords]
     (if-let [dir (dirmap (first commands))]
       (let [next-coord (g/move dir 1 robot)]
@@ -139,6 +146,6 @@
        (reduce +)))
 
 (comment
-  (part-1 (slurp "inputs/day15.inp")) ; 1412971
-  (part-2 (slurp "inputs/day15.inp")) ; 1429299
+  (time (part-1 (slurp "inputs/day15.inp"))) ; 1412971
+  (time (part-2 (slurp "inputs/day15.inp"))) ; 1429299
   )

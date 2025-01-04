@@ -49,6 +49,17 @@
     :SW :NW
     :NW :NE))
 
+(defn turn-left [^Keyword dir] ^Keyword
+  (case dir
+    :right :up
+    :down :right
+    :left :down
+    :up :left
+    :SE :NE
+    :SW :SE
+    :NW :SW
+    :NE :NW))
+
 (defn flip-dir [^Keyword dir] ^Keyword
   (case dir
     :up :down
