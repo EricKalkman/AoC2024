@@ -46,9 +46,10 @@
         start ^vec2 (g/first-coord-of grid #(= \^ ^char %))
         visited? (nodes-visited grid start)]
     (->> (dissoc visited? start)
-         (keep #(let [[obst-coord dir] %
+         (pmap #(let [[obst-coord dir] %
                       start ^vec2 (g/move dir -1 obst-coord)]
                   (or (in-cycle? (assoc ^Grid grid ^vec2 obst-coord \#) [start dir]) nil)))
+         (filter identity)
          count)))
 
 (comment

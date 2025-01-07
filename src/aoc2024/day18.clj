@@ -4,7 +4,8 @@
             [structural.core :as s]
             [clojure.string :as str]
             [aoc2024.grids :as g])
-  (:import (aoc2024.grids vec2)))
+  (:import [aoc2024.grids vec2]
+           [clojure.lang PersistentVector]))
 
 (defn parse-input [s] (->> s (re-seq #"\d+") (map parse-long) (partition 2)
                            (map (partial apply g/->vec2))))
@@ -57,7 +58,7 @@
             (recur (rest coords-to-drop) (inc n-dropped) (conj! coord-set to-drop) current-path
                    n-bfs))
           (assert false "exhausted all falling blocks"))
-        (->> (nth coords (dec n-dropped))
+        (->> (.nth ^PersistentVector coords (dec n-dropped))
              vals
              (str/join ","))))))
 
@@ -78,7 +79,7 @@
         dst (g/->vec2 (dec w) (dec h))]
     (->> (binary-search w h src dst coords 0 (count coords))
          dec
-         (.nth coords)
+         (.nth ^PersistentVector coords)
          vals
          (str/join ","))))
 

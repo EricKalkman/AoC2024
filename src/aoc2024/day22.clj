@@ -1,5 +1,6 @@
 (ns aoc2024.day22
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str])
+  (:import [clojure.lang IPersistentVector]))
 
 (def dec-modulus (dec 16777216))
 ; (bit-shift-left 1 24) ; 16777216
@@ -20,10 +21,16 @@
        (map #(as-> % $ (iterate next-secret $) (nth $ 2000)))
        (reduce +)))
 
+;(defn hash-quartet [^long a ^long b ^long c ^long d]
+;  (+ (+ 9 d)
+;     (* 20 (+ (+ 9 c)
+;              (* 20 (+ (+ 9 b) (* 20 (+ 0 a))))))))
+
 (defn hash-quartet [^long a ^long b ^long c ^long d]
-  (+ (+ 9 d)
-     (* 20 (+ (+ 9 c)
-              (* 20 (+ (+ 9 b) (* 20 (+ 0 a))))))))
+  (bit-or (bit-shift-left a 24)
+          (bit-or (bit-shift-left b 16)
+                  (bit-or (bit-shift-left c 8)
+                          d))))
 
 (defn part-2-secret-diffs-mod-10
   "Returns seq of [diff, price at end of diff] for 2000 new secrets"
@@ -51,14 +58,14 @@
                    (reduce
                      (fn [seq-to-winnings ps]
                        (let [v (vec ps)
-                             k (hash-quartet ^long (get (get v 0) 0)
-                                             ^long (get (get v 1) 0)
-                                             ^long (get (get v 2) 0)
-                                             ^long (get (get v 3) 0))
-                             n ^long (get (peek v) 1)]
+                             k (hash-quartet ^long (get (get ^IPersistentVector v 0) 0)
+                                             ^long (get (get ^IPersistentVector v 1) 0)
+                                             ^long (get (get ^IPersistentVector v 2) 0)
+                                             ^long (get (get ^IPersistentVector v 3) 0))
+                             n ^long (get (peek ^IPersistentVector v) 1)]
                          (update seq-to-winnings
                                  k
-                                 (fn [n*] ^long (or n* n)))))
+                                 (fn [n*] ^Long (or n* n)))))
                      {})))
        (reduce #(merge-with + %1 %2) {})
        (reduce (fn [m [_ v]] (max m v)) 0)))

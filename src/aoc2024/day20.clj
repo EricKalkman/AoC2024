@@ -114,7 +114,7 @@
                                  (map vector path (range)))
         ]
     (->> path
-         (map #(num-cheats-from min-savings max-cheat-time h w path-lens %))
+         (pmap #(num-cheats-from min-savings max-cheat-time h w path-lens %))
          (reduce +))))
 
 (def part-1 (partial part-with-params 100 2))
