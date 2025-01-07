@@ -8,7 +8,7 @@
   :plugins [[io.taylorwood/lein-native-image "0.3.1"]]
   :native-image {:name "aoc2024"
                  :graal-bin :env/GRAALVM_HOME
-                 :opts ["--verbose" "--initialize-at-build-time" "--pgo=/home/eric/aoc2024/inputs/default.iprof"]}
+                 :opts ["--verbose" "--initialize-at-build-time"]}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/math.numeric-tower "0.1.0"]
                  [org.clojure/data.priority-map "1.2.0"]
