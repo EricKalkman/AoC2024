@@ -27,10 +27,10 @@
 ;              (* 20 (+ (+ 9 b) (* 20 (+ 0 a))))))))
 
 (defn hash-quartet [^long a ^long b ^long c ^long d]
-  (bit-or (bit-shift-left a 24)
-          (bit-or (bit-shift-left b 16)
-                  (bit-or (bit-shift-left c 8)
-                          d))))
+  (bit-or (bit-shift-left (bit-and a 0xff) 24)
+          (bit-or (bit-shift-left (bit-and b 0xff) 16)
+                  (bit-or (bit-shift-left (bit-and c 0xff) 8)
+                          (bit-and d 0xff)))))
 
 (defn part-2-secret-diffs-mod-10
   "Returns seq of [diff, price at end of diff] for 2000 new secrets"
