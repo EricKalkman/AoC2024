@@ -1,6 +1,7 @@
 (ns aoc2024.day17
   (:require [clojure.string :as str]
-            [aoc2024.parsecomb :as p]))
+            [aoc2024.parsecomb :as p])
+  (:import [clojure.lang PersistentVector]))
 
 (defrecord State [ip a b c output])
 
@@ -40,8 +41,8 @@
   (loop [{:keys [^long ip] :as state} initial-state]
     (if (>= ip (count cmds))
       state
-      (let [op (.nth cmds ip)
-            x (.nth cmds (inc ip))]
+      (let [op (.nth ^PersistentVector cmds ip)
+            x (.nth ^PersistentVector cmds (inc ip))]
         (-> state
             (run-op op x)
             (update :ip #(+ % 2))
@@ -88,8 +89,8 @@
 
         :else
         (let [a-to-run (bit-or a cur-word)
-              res (.output (run-program (->State 0 a-to-run 0 0 []) commands))]
-          (if (= (.nth res 0) (.nth commands (- len ridx 1)))
+              res (.output ^State (run-program (->State 0 a-to-run 0 0 []) commands))]
+          (if (= (.nth ^PersistentVector res 0) (.nth ^PersistentVector commands (- len ridx 1)))
             (recur (bit-shift-left a-to-run 3) 0 (conj word-stack cur-word) (inc ridx))
             (recur a (inc cur-word) word-stack ridx)))))))
 
@@ -100,11 +101,11 @@
          (map #(let [new-a (bit-or % (bit-shift-left a 3))]
                  (-> (->State 0 new-a 0 0 [])
                      (run-program commands)
-                     (.output)
+                     :output
                      (vector new-a))))
          (some (fn [[output new-a]]
-                 (and (= (.nth commands idx)
-                         (.nth output 0))
+                 (and (= (.nth ^PersistentVector commands idx)
+                         (.nth ^PersistentVector output 0))
                       (solve-quinoid-recursive commands (dec idx) new-a)))))))
 
 (defn part-2 [s]

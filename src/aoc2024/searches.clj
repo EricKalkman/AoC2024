@@ -21,7 +21,7 @@
   ([neighfunc src stop?] (bfs neighfunc src stop? nil-visit identity))
   ([neighfunc src stop? visit] (bfs neighfunc src stop? visit identity))
   ([neighfunc src stop? visit node-keyfn]
-  (loop [q (doto (new ArrayDeque 32) (.push src))
+  (loop [q ^ArrayDeque (doto (new ArrayDeque 32) (.push src))
          prevs (transient {(node-keyfn src) src})
          visit visit]
     (if-let [cur (and (not (.isEmpty q)) (.pop q))]
@@ -29,7 +29,7 @@
         {:prevs (persistent! prevs) :last cur :visit (visit prevs cur)}
         (let [neighs (->> (neighfunc cur) (filterv (comp (complement prevs) node-keyfn)))
               new-prevs (reduce #(assoc! %1 (node-keyfn %2) cur) prevs neighs)]
-          (recur (reduce #(doto %1 (.addLast %2)) q neighs)
+          (recur (reduce #(doto ^ArrayDeque %1 (.addLast %2)) q neighs)
                  new-prevs
                  (visit prevs cur))))
       {:prevs (persistent! prevs) :visit visit}))))

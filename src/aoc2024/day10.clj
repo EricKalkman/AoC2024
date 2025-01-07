@@ -7,7 +7,7 @@
 (defn parse-input [lines] ^Grid
   ; note: Character/digit returns -1 for non-digit characters, which is fine here
   ; given the monotonicity of edges
-  (g/lines->grid (map #(map (fn [c] (Character/digit c 10)) %) lines)))
+  (g/lines->grid (map #(map (fn [^Character c] (Character/digit c 10)) %) lines)))
 
 (defn neighbors [^Grid grid ^vec2 pos]
   (let [cur-height ^long (grid pos)]

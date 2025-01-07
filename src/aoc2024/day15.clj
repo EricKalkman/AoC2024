@@ -5,7 +5,7 @@
             [structural.core :as s]
             [aoc2024.searches :as search])
   (:import [aoc2024.grids vec2]
-           [clojure.lang IPersistentVector]))
+           [clojure.lang PersistentVector]))
 
 (defn parse-input [s]
   (let [[grid-str commands] (str/split s #"\n\n")
@@ -20,14 +20,14 @@
 
 (defn pushable-blocks [boxes walls ^vec2 coord dir]
   (let [blocks
-        ^IPersistentVector
+        ^PersistentVector
         (->> (iterate #(g/move dir 1 %) coord)
              rest
              (transduce (take-while boxes) conj))]
     (cond
       (and (empty? blocks) (walls (g/move dir 1 coord))) nil
       (empty? blocks) []
-      (walls (g/move dir 1 (.nth blocks (dec (count blocks))))) nil
+      (walls (g/move dir 1 (.nth ^PersistentVector blocks (dec (count blocks))))) nil
       :else blocks)))
 
 (def dirmap {\> :right \< :left \^ :up \v :down})
