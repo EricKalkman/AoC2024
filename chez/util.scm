@@ -12,9 +12,9 @@
                  file->string
                  string->lines
                  acons
-                 map* filter-map mapcat
+                 map* filter-map mapcat map-indexed
                  count
-                 assv-get
+                 assv-get updatev
                  vector-count
                  swap-args
                  rcons
@@ -22,6 +22,7 @@
                  unfold
                  string-trim-right
                  dedup
+                 vector-update!
                  )
          (import (rnrs)
                  (rnrs r5rs)
@@ -207,6 +208,13 @@
               (cons (apply f (map car lsts))
                     res)))))
 
+  (define (map-indexed f lst)
+    (define (map-indexed-helper lst idx)
+      (if (null? lst)
+        lst
+        (cons (f idx (car lst)) (map-indexed-helper (cdr lst) (+ idx 1)))))
+    (map-indexed-helper lst 0))
+
   (define (filter-map f lst)
     (if (null? lst)
       lst
@@ -230,6 +238,14 @@
   (define (assv-get k lst)
     (and->> (assv k lst)
             (cdr)))
+
+  (define (updatev k lst f)
+    (cond
+      [(null? lst) (list (f #f))]
+      [(eqv? (caar lst) k)
+       (cons (cons (caar lst) (f (cdar lst)))
+             (cdr lst))]
+      [else (cons (car lst) (updatev k (cdr lst) f))]))
 
   (define (vector-count p v)
     (define len (vector-length v))
@@ -274,4 +290,8 @@
          (fold-left (λ (ht x) (mut-> ht (hashtable-set! x #t)))
                     (make-hashtable equal-hash equal? 32))
          (hashtable-keys)))
+
+  (define (vector-update! v idx f)
+    (define x (vector-ref v idx))
+    (vector-set! v idx (f x)))
   )
