@@ -27,6 +27,8 @@
                  list->hashset
                  hset-contains?
                  hset-incl!
+                 split-at
+                 groups-of
                  )
          (import (rnrs)
                  (rnrs r5rs)
@@ -311,4 +313,19 @@
 
   (define (hset-contains? ht x) (hashtable-ref ht x #f))
   (define (hset-incl! ht x) (hashtable-set! ht x x))
+
+  (define (split-at n lst)
+    (let loop ([n n]
+               [head '()]
+               [tail lst])
+      (cond
+        [(zero? n) (values (reverse head) tail)]
+        [(null? tail) (values lst '())]
+        [else (loop (- n 1) (cons (car tail) head) (cdr tail))])))
+
+  (define (groups-of n lst)
+    (let-values ([(h t) (split-at n lst)])
+      (if (null? t)
+        (cons h t)
+        (cons h (groups-of n t)))))
   )
