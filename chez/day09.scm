@@ -2,7 +2,7 @@
          (export parse-input part-1 part-2)
          (import (rnrs)
                  (util)
-                 (binomial-heap)
+                 (binomial-heaps)
                  (prefix (parsecomb) p))
 
   (define chunk-pos car)

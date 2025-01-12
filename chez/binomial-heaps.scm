@@ -1,4 +1,4 @@
-(library (binomial-heap)
+(library (binomial-heaps)
          (export 
                  bin-heap make-empty-bin-heap
                  make-empty-bin-heap-by
@@ -91,7 +91,7 @@
   (define (make-singleton-heap x)
     (%make-bin-heap (make-singleton-tree x x) 1 identity))
 
-  (define (make-singleton-heap-by x keyfn)
+  (define (make-singleton-heap-by keyfn x)
     (%make-bin-heap (make-singleton-tree x (keyfn x)) 1 keyfn))
 
   (define (merge-roots r1 r2)
@@ -163,7 +163,7 @@
                 (bin-heap-keyfn h)))))
 )
 #|
-(import (rnrs) (util) (binomial-heap))
+(import (rnrs) (util) (binomial-heaps))
 
 (define nodes (map (λ (x) (cons x (random 1.0))) '(a b c d e f g h i j k l)))
 
