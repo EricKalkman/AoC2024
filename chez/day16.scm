@@ -18,7 +18,7 @@
                     (and (in-grid? grid (caar c))
                          (char=? #\. (grid-get grid (caar c))))))))
 
-  (define (all-tiles-on-shortest-path start end res)
+  (define (all-tiles-on-shortest-paths start end res)
     (define prevs (assv-get 'prevs res))
     (define lasts (assv-get 'lasts res))
     (assert (null? (cdr lasts)))
@@ -45,7 +45,7 @@
          (finalizer start end)))
 
   (define part-1 (partial part (λ (_start _end res) (assv-get 'cost res))))
-  (define part-2 (partial part all-tiles-on-shortest-path))
+  (define part-2 (partial part all-tiles-on-shortest-paths))
 )
 #|
 (import (rnrs) (util) (day16))
