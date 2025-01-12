@@ -23,6 +23,10 @@
                  string-trim-right
                  dedup
                  vector-update!
+                 take-while
+                 list->hashset
+                 hset-contains?
+                 hset-incl!
                  )
          (import (rnrs)
                  (rnrs r5rs)
@@ -294,4 +298,17 @@
   (define (vector-update! v idx f)
     (define x (vector-ref v idx))
     (vector-set! v idx (f x)))
+
+  (define (take-while p lst)
+    (if (or (null? lst) (not (p (car lst))))
+      '()
+      (cons (car lst) (take-while p (cdr lst)))))
+
+  (define (list->hashset lst)
+    (fold-left (λ (ht x) (mut-> ht (hashtable-set! x x)))
+               (make-hashtable equal-hash equal? 32)
+               lst))
+
+  (define (hset-contains? ht x) (hashtable-ref ht x #f))
+  (define (hset-incl! ht x) (hashtable-set! ht x x))
   )

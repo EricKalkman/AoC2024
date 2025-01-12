@@ -268,7 +268,7 @@
   (define skip-nl (skip nl))
 
   (define (list-of elem sep)
-    (->> (seq elem (many+ (seq (skip sep) elem)))
+    (->> (seq elem (many (seq (skip sep) elem)))
          (pmap (λ (lst)
                   (cond
                     [(and (null? (cdr lst)) (null? (car lst))) (car lst)] ; return '() if all elem returned #f

@@ -12,7 +12,7 @@
            grid-set!
            coords-of all-coords-of
 
-           make-point point-row point-col
+           make-point point-row point-col point-<
 
            DIRS4 DIRS8 point-move
            dir-flip turn-right turn-left
@@ -23,6 +23,7 @@
 
            trace-coords
            trace-coords-in-grid
+           trace-in-grid-while
            trace-grid
            grid-spells-along?
            )
@@ -38,6 +39,12 @@
   (define make-point cons)
   (define point-row car)
   (define point-col cdr)
+  (define (point-< a b)
+    (define ar (point-row a))
+    (define ac (point-col a))
+    (define br (point-row b))
+    (define bc (point-col b))
+    (if (= ar br) (< ac bc) (< ar br)))
 
   (define grid-show
     (case-lambda
@@ -229,6 +236,14 @@
        (if (or (<= n 0) (not (in-grid? g start)))
          '()
          (cons start (trace-coords-in-grid g dir (point-move dir 1 start) (- n 1))))]))
+
+  (define (trace-in-grid-while g dir start p)
+    (if (not (in-grid? g start))
+      '()
+      (let ([cur (grid-get g start)])
+        (if (p cur)
+          (cons cur (trace-in-grid-while g dir (point-move dir 1 start) p))
+          '()))))
 
   (define trace-grid
     (case-lambda
